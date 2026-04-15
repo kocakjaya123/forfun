@@ -65,19 +65,22 @@ export const getAllUsers = async () => {
 // ===== VISITOR TRACKING =====
 export const trackVisitor = async (visitorName = 'guest') => {
   try {
+    const geoData = await getClientGeoLocation();
     const { data, error } = await supabase
       .from('visitors')
       .insert([
         {
           visitor_name: visitorName,
-          ip_address: await getClientIp(),
+          ip_address: geoData.ip,
+          city: geoData.city,
+          country: geoData.country,
           user_agent: navigator.userAgent,
           visited_at: new Date().toISOString()
         }
       ]);
 
     if (error) throw error;
-    console.log('Visitor tracked:', visitorName);
+    console.log('Visitor tracked:', visitorName, 'from', geoData.city, geoData.country);
     return data;
   } catch (error) {
     console.error('Error tracking visitor:', error);
@@ -97,6 +100,42 @@ export const getVisitorStats = async () => {
   } catch (error) {
     console.error('Error fetching visitor stats:', error);
     return [];
+  }
+};
+
+// Clear all visitor records (reset to 0)
+export const clearAllVisitors = async () => {
+  try {
+    const { error } = await supabase
+      .from('visitors')
+      .delete()
+      .neq('id', 0); // Delete all records (neq 0 means "not equal to 0" - matches all since id always > 0)
+
+    if (error) throw error;
+    console.log('✅ All visitor records cleared successfully!');
+    return true;
+  } catch (error) {
+    console.error('❌ Error clearing visitor records:', error);
+    return false;
+  }
+};
+
+// Helper untuk get IP dan Geolocation (kota, negara)
+const getClientGeoLocation = async () => {
+  try {
+    const response = await fetch('https://ipapi.co/json/');
+    const data = await response.json();
+    return {
+      ip: data.ip || 'unknown',
+      city: data.city || 'Unknown',
+      country: data.country_name || 'Unknown'
+    };
+  } catch {
+    return {
+      ip: 'unknown',
+      city: 'Unknown',
+      country: 'Unknown'
+    };
   }
 };
 
