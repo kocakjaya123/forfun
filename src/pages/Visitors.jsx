@@ -14,6 +14,9 @@ export default function VisitorsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage] = useState(50);
   const [totalCount, setTotalCount] = useState(0);
+  const maxPage = Math.max(1, Math.ceil(totalCount / perPage));
+  const startIndex = totalCount > 0 ? (currentPage - 1) * perPage + 1 : 0;
+  const endIndex = visitors.length > 0 ? startIndex + visitors.length - 1 : 0;
 
   useEffect(() => {
     loadMeta();
@@ -151,7 +154,7 @@ export default function VisitorsPage() {
                   >
                     <div className="flex items-start justify-between gap-2 mb-3">
                       <div>
-                        <p className="text-sm font-bold text-purple-700">#{idx + 1}</p>
+                        <p className="text-sm font-bold text-purple-700">#{(currentPage - 1) * perPage + idx + 1}</p>
                         <p className="text-lg font-semibold text-gray-800">{visitor.visitor_name}</p>
                       </div>
                       <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-semibold whitespace-nowrap">
@@ -190,7 +193,7 @@ export default function VisitorsPage() {
                         }`}
                       >
                         <td className="px-4 sm:px-6 py-3">
-                          <span className="font-bold text-purple-600 text-sm">{idx + 1}</span>
+                          <span className="font-bold text-purple-600 text-sm">{(currentPage - 1) * perPage + idx + 1}</span>
                         </td>
                         <td className="px-4 sm:px-6 py-3">
                           <span className="font-semibold text-gray-800 text-xs sm:text-sm">{visitor.visitor_name}</span>
@@ -221,7 +224,7 @@ export default function VisitorsPage() {
 
               {/* Pagination & Refresh */}
           <div className="px-4 sm:px-8 py-4 sm:py-6 bg-gray-50 border-t-2 border-purple-200 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="text-sm text-gray-700">Menampilkan {visitors.length} dari {totalCount} pengunjung</div>
+            <div className="text-sm text-gray-700">Menampilkan {startIndex}-{endIndex} dari {totalCount} pengunjung</div>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => loadVisitors(Math.max(1, currentPage - 1))}
@@ -231,11 +234,11 @@ export default function VisitorsPage() {
                 ← Prev
               </button>
 
-              <span className="text-sm text-gray-600">Halaman {currentPage} / {Math.max(1, Math.ceil(totalCount / perPage))}</span>
+              <span className="text-sm text-gray-600">Halaman {currentPage} / {maxPage}</span>
 
               <button
-                onClick={() => loadVisitors(Math.min(Math.max(1, Math.ceil(totalCount / perPage)), currentPage + 1))}
-                disabled={currentPage >= Math.ceil(totalCount / perPage)}
+                onClick={() => loadVisitors(Math.min(maxPage, currentPage + 1))}
+                disabled={currentPage >= maxPage}
                 className="px-3 py-2 bg-white/80 hover:bg-white text-gray-700 rounded-xl border"
               >
                 Next →
