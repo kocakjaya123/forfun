@@ -1,11 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export default function WelcomeModal({ currentUser, onClose }) {
   const [isOpen, setIsOpen] = useState(true);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isChecked, setIsChecked] = useState(false);
+  const [scrolledToBottom, setScrolledToBottom] = useState(false);
+  const contentRef = useRef(null);
 
   useEffect(() => {
     setIsAnimating(true);
+    // Prevent scrolling on background when modal is open
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
   }, []);
 
   const handleClose = () => {
@@ -16,15 +24,22 @@ export default function WelcomeModal({ currentUser, onClose }) {
     }, 300);
   };
 
+  const handleScrollContent = (e) => {
+    const element = e.target;
+    // Check if scrolled to bottom (with 50px threshold)
+    const isAtBottom = element.scrollHeight - element.scrollTop - element.clientHeight < 50;
+    setScrolledToBottom(isAtBottom);
+  };
+
   if (!isOpen || !currentUser) return null;
 
   return (
     <div className={`fixed inset-0 flex items-center justify-center p-4 z-50 transition-opacity duration-300 ${isAnimating ? 'opacity-100' : 'opacity-0'}`}>
-      {/* Backdrop - Subtle */}
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={handleClose}></div>
+      {/* Backdrop - Cannot interact with background */}
+      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm pointer-events-auto" onClick={handleClose}></div>
 
-      {/* Email Card - Centered with margins */}
-      <div className={`relative bg-white rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden transition-all duration-300 ${isAnimating ? 'scale-100 translate-y-0' : 'scale-95 translate-y-8'}`}>
+      {/* Email Card - Centered with margins, stays on top and interactive */}
+      <div className={`relative bg-white rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden transition-all duration-300 pointer-events-auto ${isAnimating ? 'scale-100 translate-y-0' : 'scale-95 translate-y-8'}`}>
         {/* Gradient Border Top */}
         <div className="h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
 
@@ -46,7 +61,22 @@ export default function WelcomeModal({ currentUser, onClose }) {
         </div>
 
         {/* Content Section */}
-        <div className="p-8 sm:p-10 space-y-6 max-h-[calc(100vh-300px)] overflow-y-auto">
+        <div 
+          ref={contentRef}
+          onScroll={handleScrollContent}
+          className="p-8 sm:p-10 space-y-6 max-h-[calc(100vh-300px)] overflow-y-auto relative"
+        >
+          {/* Down Arrow Indicator - Shows when not scrolled to bottom */}
+          {!scrolledToBottom && (
+            <div className="sticky bottom-0 left-0 right-0 h-16 flex items-end justify-center pointer-events-none bg-gradient-to-t from-white via-white to-transparent">
+              <div className="animate-bounce mb-2">
+                <p className="text-gray-500 text-xs font-semibold text-center mb-1">Scroll ke bawah</p>
+                <svg className="w-5 h-5 mx-auto text-purple-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
+              </div>
+            </div>
+          )}
           {/* Greeting Card */}
           <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-6 border-2 border-blue-200">
             <div className="flex items-start gap-3">
@@ -108,19 +138,40 @@ export default function WelcomeModal({ currentUser, onClose }) {
           </div>
         </div>
 
-        {/* Footer Button */}
-        <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-8 py-6 flex justify-end border-t border-gray-200 sticky bottom-0">
-          <button
-            onClick={handleClose}
-            className="group relative px-10 py-3 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 text-white font-black rounded-full transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-xl overflow-hidden"
-          >
-            {/* Animated shine effect */}
-            <div className="absolute inset-0 bg-white/20 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <span className="relative flex items-center gap-2">
-              Mulai Petualangan <span className="animate-bounce" style={{ animationDuration: '1s' }}>🚀</span>
-            </span>
-          </button>
-        </div>
+        {/* Footer Button - Only shows when scrolled to bottom */}
+        {scrolledToBottom && (
+          <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-8 py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-t border-gray-200 sticky bottom-0 animate-in fade-in duration-300">
+            {/* Checkbox */}
+            <label className="flex items-center gap-3 cursor-pointer group">
+              <input
+                type="checkbox"
+                checked={isChecked}
+                onChange={(e) => setIsChecked(e.target.checked)}
+                className="w-5 h-5 cursor-pointer accent-purple-600"
+              />
+              <span className="text-sm font-semibold text-gray-700 group-hover:text-gray-900">
+                Saya sudah membaca semuanya ✓
+              </span>
+            </label>
+
+            {/* Button */}
+            <button
+              onClick={handleClose}
+              disabled={!isChecked}
+              className={`group relative px-10 py-3 rounded-full transition-all duration-300 transform font-black flex items-center gap-2 justify-center overflow-hidden shadow-lg ${
+                isChecked
+                  ? 'bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 text-white hover:scale-110 hover:shadow-xl cursor-pointer'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
+            >
+              {/* Animated shine effect */}
+              {isChecked && <div className="absolute inset-0 bg-white/20 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>}
+              <span className="relative flex items-center gap-2">
+                Mulai Petualangan {isChecked && <span className="animate-bounce" style={{ animationDuration: '1s' }}>🚀</span>}
+              </span>
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
