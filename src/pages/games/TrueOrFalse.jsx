@@ -14,6 +14,7 @@ export default function TrueOrFalse() {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [score, setScore] = useState(0);
   const [totalCorrect, setTotalCorrect] = useState(0);
+  const [totalAttempted, setTotalAttempted] = useState(0);
   const [answered, setAnswered] = useState(false);
   const [usedQuestions, setUsedQuestions] = useState(new Set());
 
@@ -45,7 +46,7 @@ export default function TrueOrFalse() {
         'Benar atau Salah',
         score,
         totalCorrect,
-        [],
+        Array(totalAttempted),
         duration
       );
     }
@@ -57,6 +58,7 @@ export default function TrueOrFalse() {
     setCurrentQuestionIndex(0);
     setScore(0);
     setTotalCorrect(0);
+    setTotalAttempted(0);
     setUsedQuestions(new Set());
     resetForNewQuestion();
   };
@@ -90,6 +92,7 @@ export default function TrueOrFalse() {
     const newUsedQuestions = new Set(usedQuestions);
     newUsedQuestions.add(currentQuestionIndex);
     setUsedQuestions(newUsedQuestions);
+    setTotalAttempted((prev) => prev + 1);
 
     const availableQuestions = truthOrFalseQuestions.filter((_, idx) => !newUsedQuestions.has(idx));
     

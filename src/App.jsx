@@ -10,6 +10,7 @@ import LifeQuiz from './pages/games/QuizCinta';
 import AcakKata from './pages/games/AcakKata';
 import TrueOrFalse from './pages/games/TrueOrFalse';
 import MatchingGame from './pages/games/MatchingGame';
+import LawanKata from './pages/games/LawanKata';
 import { trackVisitor } from './utils/supabaseClient';
 import './index.css';
 
@@ -52,6 +53,7 @@ function AppContent() {
         <Route path="/acak-kata" element={<AcakKata />} />
         <Route path="/true-or-false" element={<TrueOrFalse />} />
         <Route path="/matching" element={<MatchingGame />} />
+        <Route path="/lawan-kata" element={<LawanKata />} />
       </Routes>
     </>
   );

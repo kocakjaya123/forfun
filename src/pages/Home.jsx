@@ -36,6 +36,13 @@ export default function Home({ currentUser }) {
       description: "Cocokkan setiap kata dengan maknanya! Game memori yang seru dan menantang tentang pertumbuhan diri.",
       emoji: "🎴",
       route: "/matching"
+    },
+    {
+      id: 6,
+      title: "Lawan Kata",
+      description: "Temukan kata dengan arti berlawanan! Perluas kosakata dan pahami nuansa bahasa Indonesia.",
+      emoji: "🔄",
+      route: "/lawan-kata"
     }
   ];
 
@@ -49,37 +56,47 @@ export default function Home({ currentUser }) {
 
       <div className="max-w-6xl mx-auto px-4 py-12 relative z-10">
         {/* Header Section */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-16 sm:mb-20">
           {currentUser && (
-            <div className="mb-6 p-4 bg-white/50 backdrop-blur rounded-2xl border-2 border-blue-300 inline-block">
-              <p className="text-lg font-bold text-blue-700">👋 Selamat datang, <span className="text-blue-600">{currentUser}</span>!</p>
+            <div className="mb-8 inline-block px-6 py-3 bg-gradient-to-r from-blue-100 to-purple-100 backdrop-blur rounded-full border-2 border-blue-300 hover:border-purple-400 transition-colors shadow-md">
+              <p className="text-base sm:text-lg font-bold bg-gradient-to-r from-blue-700 to-purple-700 bg-clip-text text-transparent">
+                👋 Selamat datang, <span className="font-extrabold">{currentUser}</span>!
+              </p>
             </div>
           )}
           
           <div className="mb-4 inline-block">
-            <div className="text-6xl sm:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-green-500 to-blue-500 drop-shadow-lg">
-              LifeQuest 🚀
+            <div className="text-6xl sm:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 drop-shadow-2xl animate-pulse" style={{ animationDuration: '3s' }}>
+              LifeQuest
             </div>
+            <div className="text-5xl mt-2">🚀</div>
           </div>
           
-          <p className="text-xl sm:text-2xl text-gray-700 font-semibold mb-2">
-            Tempat mengeksplorasi impian, masa depan, dan pertumbuhan diri!
+          <div className="h-1 w-20 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full mx-auto mb-6"></div>
+          
+          <p className="text-xl sm:text-2xl text-gray-700 font-bold mb-3">
+            Eksplorasi Impian & Tujuan Hidupmu
           </p>
           
-          <p className="text-lg text-gray-600 mb-6">
-            Seberapa serius kamu dengan tujuan hidupmu? Mari kita uji bersama! 💪
+          <p className="text-base sm:text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+            Mainkan game interaktif yang menyenangkan sambil belajar tentang diri sendiri dan mengejar mimpi Anda! 🌟
           </p>
           
-          <div className="flex justify-center gap-3 text-2xl">
-            <span className="animate-bounce" style={{ animationDelay: '0s' }}>�</span>
-            <span className="animate-bounce" style={{ animationDelay: '0.2s' }}>🎯</span>
-            <span className="animate-bounce" style={{ animationDelay: '0.4s' }}>🚀</span>
+          <div className="flex justify-center gap-4 text-3xl sm:text-4xl flex-wrap">
+            <span className="animate-bounce hover:scale-125 transition-transform cursor-pointer" style={{ animationDelay: '0s' }}>💭</span>
+            <span className="animate-bounce hover:scale-125 transition-transform cursor-pointer" style={{ animationDelay: '0.2s' }}>🎯</span>
+            <span className="animate-bounce hover:scale-125 transition-transform cursor-pointer" style={{ animationDelay: '0.4s' }}>⭐</span>
           </div>
         </div>
 
         {/* Games Grid */}
-        <div className="mb-12 sm:mb-16">
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 sm:mb-8">Pilih Game Mu</h2>
+        <div className="mb-16 sm:mb-20">
+          <div className="mb-4 flex items-center justify-center gap-3">
+            <div className="h-1 w-12 bg-gradient-to-r from-transparent to-blue-400 rounded-full"></div>
+            <h2 className="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Pilih Petualangan Mu</h2>
+            <div className="h-1 w-12 bg-gradient-to-l from-transparent to-purple-400 rounded-full"></div>
+          </div>
+          <p className="text-center text-gray-600 mb-10 text-sm sm:text-base">5 game seru untuk mengenal diri lebih baik</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {games.map((game) => (
               <div key={game.id} className="transform hover:scale-105 transition-transform duration-300">
@@ -96,37 +113,57 @@ export default function Home({ currentUser }) {
         </div>
 
         {/* How To Play Section */}
-        <div className="mb-12">
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 sm:mb-8">Gimana Cara Mainnya? 🎮</h2>
+        <div className="mb-16 sm:mb-20">
+          <div className="mb-4 flex items-center justify-center gap-3">
+            <div className="h-1 w-12 bg-gradient-to-r from-transparent to-green-400 rounded-full"></div>
+            <h2 className="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600">Gimana Cara Mainnya?</h2>
+            <div className="h-1 w-12 bg-gradient-to-l from-transparent to-emerald-400 rounded-full"></div>
+          </div>
+          <p className="text-center text-gray-600 mb-10 text-sm sm:text-base">Ikuti 5 langkah mudah untuk memulai petualangan</p>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             {[
-              { step: 1, title: "Pilih Game", desc: "Pilih salah satu game yang tersedia di atas" },
-              { step: 2, title: "Baca Petunjuk", desc: "Pahami soal dan instruksi game dengan baik" },
-              { step: 3, title: "Jawab Cepat", desc: "Selesaikan sebelum waktu habis" },
-              { step: 4, title: "Kumpulkan Poin", desc: "Dapatkan skor berdasarkan akurasi & kecepatan" },
-              { step: 5, title: "Lihat Ranking", desc: "Cek posisi kamu di leaderboard" }
+              { step: 1, title: "Pilih Game", desc: "Pilih salah satu game yang tersedia di atas", icon: "🎮" },
+              { step: 2, title: "Baca Petunjuk", desc: "Pahami soal dan instruksi game dengan baik", icon: "📖" },
+              { step: 3, title: "Jawab Cepat", desc: "Selesaikan sebelum waktu habis", icon: "⚡" },
+              { step: 4, title: "Kumpulkan Poin", desc: "Dapatkan skor berdasarkan akurasi & kecepatan", icon: "⭐" },
+              { step: 5, title: "Lihat Ranking", desc: "Cek posisi kamu di leaderboard", icon: "🏆" }
             ].map((item, idx) => (
-              <div key={idx} className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-4 sm:p-6 border-2 border-blue-200 hover:border-purple-400 transition-colors">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
-                    <span className="text-white font-bold text-sm sm:text-base">{item.step}</span>
+              <div key={idx} className="group relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-300 to-purple-300 rounded-2xl blur-lg opacity-0 group-hover:opacity-75 transition-opacity duration-300"></div>
+                <div className="relative bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 rounded-2xl p-5 sm:p-6 border-2 border-blue-200 group-hover:border-purple-400 transition-all shadow-lg">
+                  <div className="text-center mb-3">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 mx-auto bg-gradient-to-br from-blue-400 via-purple-400 to-pink-400 rounded-full flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
+                      <span className="text-xl sm:text-2xl">{item.icon}</span>
+                    </div>
                   </div>
-                  <h3 className="font-bold text-gray-800 text-sm sm:text-base">{item.title}</h3>
+                  <div className="text-center mb-2">
+                    <span className="inline-block px-3 py-1 bg-gradient-to-r from-blue-200 to-purple-200 rounded-full text-xs font-bold text-blue-700 mb-2">Langkah {item.step}</span>
+                    <h3 className="font-bold text-gray-800 text-sm sm:text-base">{item.title}</h3>
+                  </div>
+                  <p className="text-gray-600 text-xs sm:text-sm text-center">{item.desc}</p>
                 </div>
-                <p className="text-gray-600 text-xs sm:text-sm">{item.desc}</p>
               </div>
             ))}
           </div>
         </div>
 
         {/* CTA Section */}
-        <div className="mb-12 bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 rounded-2xl p-8 sm:p-12 text-center text-white shadow-xl">
-          <h3 className="text-2xl sm:text-3xl font-bold mb-3">Siap untuk dimulai? 🚀</h3>
-          <p className="text-lg mb-6 opacity-95">Uji pengetahuan dan kemampuanmu sekarang juga!</p>
-          <a href="#pilih-game" className="inline-block px-8 py-3 bg-white text-purple-600 font-bold rounded-full hover:bg-gray-100 transition-colors text-lg">
-            Mulai Bermain →
-          </a>
+        <div className="mb-16 sm:mb-20 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 rounded-3xl blur-2xl opacity-40"></div>
+          <div className="relative bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-3xl p-10 sm:p-16 text-center text-white shadow-2xl border border-white/30 backdrop-blur">
+            <div className="mb-4 text-5xl sm:text-6xl">✨</div>
+            <h3 className="text-3xl sm:text-4xl font-black mb-4 drop-shadow-lg">Siap untuk Petualangan? 🚀</h3>
+            <p className="text-base sm:text-lg mb-8 opacity-95 max-w-2xl mx-auto">Uji pengetahuan, keahlian, dan ketahanan mental kamu. Setiap game adalah kesempatan untuk tumbuh dan belajar!</p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <a href="#pilih-game" className="px-10 py-4 bg-white text-purple-600 font-bold rounded-full hover:bg-gray-100 transition-all transform hover:scale-105 shadow-lg text-lg">
+                Mulai Sekarang 🎮
+              </a>
+              <a href="/leaderboard" className="px-10 py-4 bg-white/20 border-2 border-white text-white font-bold rounded-full hover:bg-white/30 transition-all transform hover:scale-105 shadow-lg text-lg">
+                Lihat Leaderboard 🏆
+              </a>
+            </div>
+          </div>
         </div>
 
         {/* Footer */}

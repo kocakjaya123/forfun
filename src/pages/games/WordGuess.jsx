@@ -22,6 +22,7 @@ export default function WordGuess() {
   const [answered, setAnswered] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [usedWords, setUsedWords] = useState(new Set());
+  const [totalAttempted, setTotalAttempted] = useState(0);
   const [declineMessage, setDeclineMessage] = useState('');
 
   const currentWord = words[currentWordIndex];
@@ -51,6 +52,7 @@ export default function WordGuess() {
     setScore(0);
     setTotalCorrect(0);
     setConsecutiveCorrect(0);
+    setTotalAttempted(0);
     setUsedWords(new Set());
     resetForNewQuestion();
   };
@@ -97,6 +99,7 @@ export default function WordGuess() {
     const newUsedWords = new Set(usedWords);
     newUsedWords.add(currentWordIndex);
     setUsedWords(newUsedWords);
+    setTotalAttempted((prev) => prev + 1);
 
     if (currentWordIndex < words.length - 1) {
       setCurrentWordIndex((prev) => prev + 1);
@@ -352,6 +355,7 @@ export default function WordGuess() {
       score={score}
       totalCorrect={totalCorrect}
       totalWords={words.length}
+      totalAttempted={totalAttempted}
       duration={duration}
       onRestart={() => {
         setGameState('setup');
@@ -362,7 +366,7 @@ export default function WordGuess() {
   );
 }
 
-function ResultsScreen({ playerName, score, totalCorrect, totalWords, duration, onRestart }) {
+function ResultsScreen({ playerName, score, totalCorrect, totalWords, totalAttempted, duration, onRestart }) {
   const navigate = useNavigate();
 
   // Save result to database when component mounts
@@ -373,7 +377,7 @@ function ResultsScreen({ playerName, score, totalCorrect, totalWords, duration, 
         'Tebak Kata Cinta',
         score,
         totalCorrect,
-        [],
+        Array(totalAttempted),
         duration
       );
     }

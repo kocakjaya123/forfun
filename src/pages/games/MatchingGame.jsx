@@ -15,6 +15,7 @@ export default function MatchingGame() {
   const [matched, setMatched] = useState(new Set());
   const [score, setScore] = useState(0);
   const [moves, setMoves] = useState(0);
+  const [totalPairs] = useState(matchingPairs.length);
 
   // Timer effect
   useEffect(() => {
@@ -42,7 +43,7 @@ export default function MatchingGame() {
         'Pasangkan Kata',
         score,
         matched.size / 2,
-        [],
+        Array(totalPairs),
         duration
       );
     }

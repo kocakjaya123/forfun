@@ -15,6 +15,7 @@ export default function AcakKata() {
   const [hintsRevealed, setHintsRevealed] = useState(0);
   const [score, setScore] = useState(0);
   const [totalCorrect, setTotalCorrect] = useState(0);
+  const [totalAttempted, setTotalAttempted] = useState(0);
   const [answered, setAnswered] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [usedWords, setUsedWords] = useState(new Set());
@@ -47,7 +48,7 @@ export default function AcakKata() {
         'Acak Kata',
         score,
         totalCorrect,
-        [],
+        Array(totalAttempted),
         duration
       );
     }
@@ -59,6 +60,7 @@ export default function AcakKata() {
     setCurrentWordIndex(0);
     setScore(0);
     setTotalCorrect(0);
+    setTotalAttempted(0);
     setUsedWords(new Set());
     resetForNewQuestion();
   };
@@ -96,6 +98,7 @@ export default function AcakKata() {
     const newUsedWords = new Set(usedWords);
     newUsedWords.add(currentWordIndex);
     setUsedWords(newUsedWords);
+    setTotalAttempted((prev) => prev + 1);
 
     const availableWords = scrambledWords.filter((_, idx) => !newUsedWords.has(idx));
     
