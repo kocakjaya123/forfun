@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="rocketGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF1493;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#FF69B4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFB6C1;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Rocket body -->
+  <ellipse cx="50" cy="40" rx="18" ry="35" fill="#FF1493"/>
+  
+  <!-- Rocket window -->
+  <circle cx="50" cy="20" r="8" fill="#FFD700"/>
+  
+  <!-- Left fin -->
+  <polygon points="32,65 20,80 32,75" fill="#FF69B4"/>
+  
+  <!-- Right fin -->
+  <polygon points="68,65 80,80 68,75" fill="#FF69B4"/>
+  
+  <!-- Flames -->
+  <polygon points="45,75 50,95 55,75" fill="#FF4500"/>
+  <polygon points="42,75 48,90 52,75" fill="#FFB700"/>
+  
+  <!-- Stars around -->
+  <circle cx="15" cy="20" r="3" fill="#FFD700"/>
+  <circle cx="85" cy="25" r="3" fill="#FFD700"/>
+  <circle cx="20" cy="70" r="2" fill="#FFD700"/>
+  <circle cx="80" cy="75" r="2" fill="#FFD700"/>
+</svg>

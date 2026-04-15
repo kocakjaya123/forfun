@@ -1,6 +1,18 @@
 import GameCard from '../components/GameCard';
+import WelcomeModal from '../components/WelcomeModal';
+import { useState, useEffect } from 'react';
 
 export default function Home({ currentUser }) {
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  // Show welcome modal on first mount if user is logged in
+  useEffect(() => {
+    if (currentUser && !sessionStorage.getItem('welcomeShown')) {
+      setShowWelcome(true);
+      sessionStorage.setItem('welcomeShown', 'true');
+    }
+  }, [currentUser]);
+
   const games = [
     {
       id: 1,
@@ -57,31 +69,27 @@ export default function Home({ currentUser }) {
       <div className="max-w-6xl mx-auto px-4 py-12 relative z-10">
         {/* Header Section */}
         <div className="text-center mb-16 sm:mb-20">
-          {currentUser && (
-            <div className="mb-8 inline-block px-6 py-3 bg-gradient-to-r from-blue-100 to-purple-100 backdrop-blur rounded-full border-2 border-blue-300 hover:border-purple-400 transition-colors shadow-md">
-              <p className="text-base sm:text-lg font-bold bg-gradient-to-r from-blue-700 to-purple-700 bg-clip-text text-transparent">
-                👋 Selamat datang, <span className="font-extrabold">{currentUser}</span>!
-              </p>
-            </div>
-          )}
-          
-          <div className="mb-4 inline-block">
+          {/* Main Logo */}
+          <div className="mb-8 inline-block">
             <div className="text-6xl sm:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 drop-shadow-2xl animate-pulse" style={{ animationDuration: '3s' }}>
               LifeQuest
             </div>
-            <div className="text-5xl mt-2">🚀</div>
+            <div className="text-5xl mt-3 text-center">🚀</div>
           </div>
           
-          <div className="h-1 w-20 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full mx-auto mb-6"></div>
+          {/* Decorative Line */}
+          <div className="h-1 w-24 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full mx-auto mb-8"></div>
           
-          <p className="text-xl sm:text-2xl text-gray-700 font-bold mb-3">
+          {/* Main Tagline */}
+          <p className="text-2xl sm:text-3xl text-gray-800 font-bold mb-4">
             Eksplorasi Impian & Tujuan Hidupmu
           </p>
           
-          <p className="text-base sm:text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
             Mainkan game interaktif yang menyenangkan sambil belajar tentang diri sendiri dan mengejar mimpi Anda! 🌟
           </p>
           
+          {/* Animated Icons */}
           <div className="flex justify-center gap-4 text-3xl sm:text-4xl flex-wrap">
             <span className="animate-bounce hover:scale-125 transition-transform cursor-pointer" style={{ animationDelay: '0s' }}>💭</span>
             <span className="animate-bounce hover:scale-125 transition-transform cursor-pointer" style={{ animationDelay: '0.2s' }}>🎯</span>
@@ -96,7 +104,7 @@ export default function Home({ currentUser }) {
             <h2 className="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Pilih Petualangan Mu</h2>
             <div className="h-1 w-12 bg-gradient-to-l from-transparent to-purple-400 rounded-full"></div>
           </div>
-          <p className="text-center text-gray-600 mb-10 text-sm sm:text-base">5 game seru untuk mengenal diri lebih baik</p>
+          <p className="text-center text-gray-600 mb-10 text-sm sm:text-base">6 game seru untuk mengenal diri lebih baik</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {games.map((game) => (
               <div key={game.id} className="transform hover:scale-105 transition-transform duration-300">
@@ -171,6 +179,9 @@ export default function Home({ currentUser }) {
           <p className="text-gray-600 text-lg font-semibold">💙 Dibuat untuk membantu mu mengenal diri lebih baik 🚀</p>
         </div>
       </div>
+
+      {/* Welcome Modal */}
+      <WelcomeModal currentUser={currentUser} onClose={() => setShowWelcome(false)} />
     </div>
   );
 }
