@@ -125,12 +125,15 @@ export const getVisitorMeta = async () => {
     if (errTotal) throw errTotal;
 
     // unique visitors by name
-    const { data: uniqueData, error: errUnique } = await supabase
+    // PostgREST/supabase-js does not expose a .distinct() helper on the client chain.
+    // Fallback: fetch visitor_name rows (limited) and compute unique count client-side.
+    const { data: nameRows, error: errNames } = await supabase
       .from('visitors')
       .select('visitor_name')
-      .distinct('visitor_name');
-    if (errUnique) throw errUnique;
-    const uniqueCount = uniqueData ? uniqueData.length : 0;
+      .order('visitor_name', { ascending: true })
+      .range(0, 9999); // limit to first 10k rows to avoid huge transfers
+    if (errNames) throw errNames;
+    const uniqueCount = nameRows ? new Set(nameRows.map((r) => r.visitor_name)).size : 0;
 
     // today's visits
     const today = new Date();
