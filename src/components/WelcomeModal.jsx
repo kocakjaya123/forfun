@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
 export default function WelcomeModal({ currentUser, onClose }) {
-  const [isOpen, setIsOpen] = useState(true);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const [scrolledToBottom, setScrolledToBottom] = useState(false);
@@ -16,17 +15,9 @@ export default function WelcomeModal({ currentUser, onClose }) {
     };
   }, []);
 
-  useEffect(() => {
-    // Ensure scroll is restored when modal closes
-    if (!isOpen) {
-      document.body.style.overflow = 'auto';
-    }
-  }, [isOpen]);
-
   const handleClose = () => {
     setIsAnimating(false);
     setTimeout(() => {
-      setIsOpen(false);
       onClose?.();
     }, 300);
   };
@@ -38,7 +29,7 @@ export default function WelcomeModal({ currentUser, onClose }) {
     setScrolledToBottom(isAtBottom);
   };
 
-  if (!isOpen || !currentUser) return null;
+  if (!currentUser) return null;
 
   return (
     <div className={`fixed inset-0 flex items-center justify-center p-4 z-50 transition-opacity duration-300 ${isAnimating ? 'opacity-100' : 'opacity-0'}`}>

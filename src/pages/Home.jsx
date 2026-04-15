@@ -5,13 +5,19 @@ import { useState, useEffect } from 'react';
 export default function Home({ currentUser }) {
   const [showWelcome, setShowWelcome] = useState(false);
 
-  // Show welcome modal on first mount if user is logged in
+  // Show welcome modal on first mount if user is logged in (use localStorage)
   useEffect(() => {
-    if (currentUser && !sessionStorage.getItem('welcomeShown')) {
+    if (currentUser && !localStorage.getItem(`welcomeShown_${currentUser}`)) {
       setShowWelcome(true);
-      sessionStorage.setItem('welcomeShown', 'true');
     }
   }, [currentUser]);
+
+  const handleWelcomeClose = () => {
+    setShowWelcome(false);
+    if (currentUser) {
+      localStorage.setItem(`welcomeShown_${currentUser}`, 'true');
+    }
+  };
 
   const games = [
     {
@@ -181,7 +187,7 @@ export default function Home({ currentUser }) {
       </div>
 
       {/* Welcome Modal */}
-      <WelcomeModal currentUser={currentUser} onClose={() => setShowWelcome(false)} />
+      {showWelcome && <WelcomeModal currentUser={currentUser} onClose={handleWelcomeClose} />}
     </div>
   );
 }

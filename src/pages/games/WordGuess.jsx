@@ -67,7 +67,7 @@ export default function WordGuess() {
   };
 
   const handleSubmitAnswer = () => {
-    if (!answer.trim()) return;
+    if (!answer || !answer.trim()) return;
 
     const normalizedAnswer = normalizeAnswer(answer);
     const normalizedWord = normalizeAnswer(currentWord.word);

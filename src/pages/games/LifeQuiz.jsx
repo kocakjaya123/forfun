@@ -260,7 +260,7 @@ export default function LifeQuiz() {
             {!answered && (
               <button
                 onClick={handleSubmitAnswer}
-                disabled={!selectedAnswer}
+                disabled={selectedAnswer === null || selectedAnswer === undefined}
                 className="w-full mt-8 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 disabled:from-gray-300 disabled:to-gray-400 text-white font-bold py-4 px-6 rounded-2xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg disabled:cursor-not-allowed"
               >
                 Jawab! ✓
