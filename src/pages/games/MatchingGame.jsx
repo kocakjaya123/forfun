@@ -8,8 +8,8 @@ export default function MatchingGame() {
   const navigate = useNavigate();
   const [gameState, setGameState] = useState('setup'); // setup, playing, finished
   const [playerName, setPlayerName] = useState(localStorage.getItem('playerName') || '');
-  const [duration, setDuration] = useState(120); // default 2 minutes
-  const [timeLeft, setTimeLeft] = useState(120);
+  const [duration, setDuration] = useState(60); // fixed 1 minute
+  const [timeLeft, setTimeLeft] = useState(60);
   const [cards, setCards] = useState([]);
   const [flipped, setFlipped] = useState({});
   const [matched, setMatched] = useState(new Set());
@@ -121,23 +121,7 @@ export default function MatchingGame() {
             <p className="text-indigo-600 text-lg font-semibold">👋 Hai, {playerName}!</p>
           </div>
 
-          <p className="text-center text-gray-600 mb-6">Pilih durasi game</p>
-
-          <div className="space-y-4 mb-8">
-            {[120, 180, 240].map((dur) => (
-              <button
-                key={dur}
-                onClick={() => setDuration(dur)}
-                className={`w-full py-4 px-6 rounded-2xl font-bold text-lg transition-all duration-300 border-3 ${
-                  duration === dur
-                    ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white border-indigo-700 scale-105'
-                    : 'bg-gray-100 text-gray-700 border-gray-300 hover:border-indigo-300'
-                }`}
-              >
-                {dur === 120 ? '⏱️ 2 Menit' : dur === 180 ? '⏱️ 3 Menit' : '⏱️ 4 Menit'}
-              </button>
-            ))}
-          </div>
+          <p className="text-center text-gray-600 mb-6">Durasi: 1 Menit</p>
 
           <button
             onClick={startGame}
@@ -153,17 +137,7 @@ export default function MatchingGame() {
             ← Kembali
           </button>
 
-          <button
-            onClick={() => {
-              setPlayerName('');
-              localStorage.removeItem('playerName');
-              localStorage.removeItem('userId');
-              navigate('/login');
-            }}
-            className="w-full mt-2 bg-red-200 hover:bg-red-300 text-red-700 font-bold py-2 px-4 rounded-xl transition-all text-sm"
-          >
-            🚪 Logout
-          </button>
+          {/* Logout removed from in-game UI; use navbar logout */}
         </div>
       </div>
     );

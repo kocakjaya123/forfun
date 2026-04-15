@@ -26,6 +26,25 @@ function AppContent() {
     }
   }, []);
 
+  // Session expiry checker (auto-logout after expiry)
+  useEffect(() => {
+    const checkExpiry = () => {
+      const expiryStr = localStorage.getItem('sessionExpiry');
+      if (!expiryStr) return;
+      const expiry = parseInt(expiryStr, 10);
+      if (expiry && Date.now() > expiry) {
+        setCurrentUser(null);
+        localStorage.removeItem('playerName');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('sessionExpiry');
+      }
+    };
+
+    checkExpiry();
+    const id = setInterval(checkExpiry, 5000);
+    return () => clearInterval(id);
+  }, []);
+
   const handleLoginSuccess = (playerName) => {
     setCurrentUser(playerName);
     localStorage.setItem('playerName', playerName);
@@ -42,6 +61,7 @@ function AppContent() {
         setCurrentUser(null);
         localStorage.removeItem('playerName');
         localStorage.removeItem('userId');
+        localStorage.removeItem('sessionExpiry');
       }} />
       <Routes>
         <Route path="/" element={<Home currentUser={currentUser} />} />

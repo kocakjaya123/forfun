@@ -11,12 +11,6 @@ export default function VisitorsPage() {
     todayVisits: 0
   });
   const [isLoading, setIsLoading] = useState(true);
-  const [expandedBrowser, setExpandedBrowser] = useState({});
-  const BROWSER_SNIPPET_LEN = 35;
-
-  const toggleBrowser = (id) => {
-    setExpandedBrowser((prev) => ({ ...prev, [id]: !prev?.[id] }));
-  };
 
   useEffect(() => {
     loadVisitors();
@@ -166,30 +160,9 @@ export default function VisitorsPage() {
                       </span>
                     </div>
                     <div className="space-y-2 text-xs">
-                      <p><span className="font-bold">IP:</span> {visitor.ip_address || 'N/A'}</p>
                       <p><span className="font-bold">Kota:</span> {visitor.city || 'N/A'}</p>
                       <p><span className="font-bold">Negara:</span> {visitor.country || 'N/A'}</p>
                       <p><span className="font-bold">Kunjungan:</span> {formatDate(visitor.visited_at)}</p>
-                      <p className="text-gray-600">
-                        <span className="font-bold">Browser:</span>{' '}
-                        {visitor.user_agent ? (
-                          <>
-                            <span className="inline-block max-w-[18rem] align-middle">
-                              {expandedBrowser[visitor.id]
-                                ? visitor.user_agent
-                                : `${visitor.user_agent.substring(0, BROWSER_SNIPPET_LEN)}${visitor.user_agent.length > BROWSER_SNIPPET_LEN ? '...' : ''}`}
-                            </span>
-                            {visitor.user_agent.length > BROWSER_SNIPPET_LEN && (
-                              <button
-                                onClick={() => toggleBrowser(visitor.id)}
-                                className="ml-2 text-xs text-blue-600 hover:underline"
-                              >
-                                {expandedBrowser[visitor.id] ? 'Sembunyikan' : 'Lihat'}
-                              </button>
-                            )}
-                          </>
-                        ) : 'N/A'}
-                      </p>
                     </div>
                   </div>
                 ))}
@@ -202,10 +175,9 @@ export default function VisitorsPage() {
                     <tr>
                       <th className="px-4 sm:px-6 py-3 text-left text-xs sm:text-sm font-bold text-purple-700">#</th>
                       <th className="px-4 sm:px-6 py-3 text-left text-xs sm:text-sm font-bold text-purple-700">👤 Nama</th>
-                      <th className="px-4 sm:px-6 py-3 text-left text-xs sm:text-sm font-bold text-purple-700">🌐 IP Address</th>
                       <th className="px-4 sm:px-6 py-3 text-left text-xs sm:text-sm font-bold text-purple-700">📅 Waktu</th>
                       <th className="px-4 sm:px-6 py-3 text-left text-xs sm:text-sm font-bold text-purple-700">⏰ Lalu</th>
-                      <th className="hidden lg:table-cell px-4 sm:px-6 py-3 text-left text-xs sm:text-sm font-bold text-purple-700">🔧 Browser</th>
+                      
                       <th className="px-4 sm:px-6 py-3 text-left text-xs sm:text-sm font-bold text-purple-700">Kota</th>
                       <th className="px-4 sm:px-6 py-3 text-left text-xs sm:text-sm font-bold text-purple-700">Negara</th>
                     </tr>
@@ -224,11 +196,7 @@ export default function VisitorsPage() {
                         <td className="px-4 sm:px-6 py-3">
                           <span className="font-semibold text-gray-800 text-xs sm:text-sm">{visitor.visitor_name}</span>
                         </td>
-                        <td className="px-4 sm:px-6 py-3">
-                          <span className="font-mono text-xs bg-gray-200 px-2 py-1 rounded text-gray-700">
-                            {visitor.ip_address || 'N/A'}
-                          </span>
-                        </td>
+                        
                         <td className="px-4 sm:px-6 py-3">
                           <span className="text-xs text-gray-600">{formatDate(visitor.visited_at)}</span>
                         </td>
@@ -237,24 +205,7 @@ export default function VisitorsPage() {
                             {getTimeAgo(visitor.visited_at)}
                           </span>
                         </td>
-                        <td className="hidden lg:table-cell px-4 sm:px-6 py-3">
-                          <div className="text-xs text-gray-500 max-w-xs">
-                            {visitor.user_agent ? (
-                              <>
-                                <div className="truncate">
-                                  {expandedBrowser[visitor.id]
-                                    ? visitor.user_agent
-                                    : `${visitor.user_agent.substring(0, BROWSER_SNIPPET_LEN)}${visitor.user_agent.length > BROWSER_SNIPPET_LEN ? '...' : ''}`}
-                                </div>
-                                {visitor.user_agent.length > BROWSER_SNIPPET_LEN && (
-                                  <button onClick={() => toggleBrowser(visitor.id)} className="text-xs text-blue-600 hover:underline mt-1">
-                                    {expandedBrowser[visitor.id] ? 'Sembunyikan' : 'Lihat'}
-                                  </button>
-                                )}
-                              </>
-                            ) : 'N/A'}
-                          </div>
-                        </td>
+                        
                         <td className="px-4 sm:px-6 py-3">
                           <span className="text-xs text-gray-700">{visitor.city || 'N/A'}</span>
                         </td>

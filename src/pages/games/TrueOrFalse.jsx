@@ -117,23 +117,7 @@ export default function TrueOrFalse() {
             <p className="text-rose-600 text-lg font-semibold">👋 Hai, {playerName}!</p>
           </div>
 
-          <p className="text-center text-gray-600 mb-6">Pilih durasi game</p>
-          
-          <div className="space-y-4 mb-8">
-            {[60, 120, 180].map((dur) => (
-              <button
-                key={dur}
-                onClick={() => setDuration(dur)}
-                className={`w-full py-4 px-6 rounded-2xl font-bold text-lg transition-all duration-300 border-3 ${
-                  duration === dur
-                    ? 'bg-gradient-to-r from-rose-500 to-rose-600 text-white border-rose-700 scale-105'
-                    : 'bg-gray-100 text-gray-700 border-gray-300 hover:border-rose-300'
-                }`}
-              >
-                {dur === 60 ? '⏱️ 1 Menit' : dur === 120 ? '⏱️ 2 Menit' : '⏱️ 3 Menit'}
-              </button>
-            ))}
-          </div>
+          <p className="text-center text-gray-600 mb-6">Durasi: 1 Menit</p>
 
           <button
             onClick={startGame}
@@ -149,17 +133,7 @@ export default function TrueOrFalse() {
             ← Kembali
           </button>
 
-          <button
-            onClick={() => {
-              setPlayerName('');
-              localStorage.removeItem('playerName');
-              localStorage.removeItem('userId');
-              navigate('/login');
-            }}
-            className="w-full mt-2 bg-red-200 hover:bg-red-300 text-red-700 font-bold py-2 px-4 rounded-xl transition-all text-sm"
-          >
-            🚪 Logout
-          </button>
+          {/* Logout removed from in-game UI; use navbar logout */}
         </div>
       </div>
     );

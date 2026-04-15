@@ -59,6 +59,8 @@ export default function LoginPage({ onLoginSuccess }) {
       // Save ke localStorage
       localStorage.setItem('playerName', playerName.trim());
       localStorage.setItem('userId', user.id);
+      // Session expiry: 1 minute from now
+      localStorage.setItem('sessionExpiry', (Date.now() + 60 * 1000).toString());
 
       // Callback ke parent
       onLoginSuccess(playerName.trim());
