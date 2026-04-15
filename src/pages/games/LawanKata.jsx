@@ -267,8 +267,8 @@ export default function LawanKata() {
 function ResultsScreen({ playerName, score, totalCorrect, totalWords, totalAttempted, duration, onRestart }) {
   const navigate = useNavigate();
   const accuracy = totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 100) : 0;
-  const message = getResultMessage(accuracy);
-  const quote = getWisdomQuote();
+  const result = getResultMessage(score, totalWords, 'default');
+  const quote = getWisdomQuote(score);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 via-indigo-50 to-blue-50 flex items-center justify-center p-4 pb-12">
@@ -297,8 +297,10 @@ function ResultsScreen({ playerName, score, totalCorrect, totalWords, totalAttem
           </div>
 
           {/* Message */}
-          <div className="bg-white rounded-xl p-4 border-2 border-blue-200">
-            <p className="text-center text-blue-700 font-semibold text-lg">{message}</p>
+          <div className="bg-white rounded-xl p-4 border-2 border-blue-200 text-center">
+            <div className="text-4xl mb-2">{result.emoji}</div>
+            <p className="text-center text-blue-700 font-semibold text-lg">{result.title}</p>
+            <p className="text-center text-gray-700 mt-2">{result.message}</p>
           </div>
         </div>
 

@@ -273,7 +273,7 @@ export default function LifeQuiz() {
 
   // Finished screen
   if (gameState === 'finished') {
-    const result = getResultMessage(score, 10);
+    const result = getResultMessage(score, 10, 'default');
     const wisdomQuote = getWisdomQuote(score);
 
     return (

@@ -88,18 +88,64 @@ export const trackVisitor = async (visitorName = 'guest') => {
   }
 };
 
-export const getVisitorStats = async () => {
+/**
+ * Fetch visitors with pagination.
+ * @param {number} page 1-based page number
+ * @param {number} perPage items per page
+ * @returns {Promise<{data: Array, count: number}>}
+ */
+export const getVisitorStats = async (page = 1, perPage = 50) => {
   try {
-    const { data, error } = await supabase
+    const from = (page - 1) * perPage;
+    const to = from + perPage - 1;
+
+    const { data, error, count } = await supabase
       .from('visitors')
-      .select('*')
-      .order('visited_at', { ascending: false });
+      .select('id, visitor_name, city, country, visited_at', { count: 'exact' })
+      .order('visited_at', { ascending: false })
+      .range(from, to);
 
     if (error) throw error;
-    return data;
+    return { data: data || [], count: count || 0 };
   } catch (error) {
     console.error('Error fetching visitor stats:', error);
-    return [];
+    return { data: [], count: 0 };
+  }
+};
+
+/**
+ * Fetch overall visitor meta: total visits, unique visitors (by name), and today's visits.
+ */
+export const getVisitorMeta = async () => {
+  try {
+    // total visits (count only)
+    const { count: totalCount, error: errTotal } = await supabase
+      .from('visitors')
+      .select('id', { count: 'exact', head: true });
+    if (errTotal) throw errTotal;
+
+    // unique visitors by name
+    const { data: uniqueData, error: errUnique } = await supabase
+      .from('visitors')
+      .select('visitor_name')
+      .distinct('visitor_name');
+    if (errUnique) throw errUnique;
+    const uniqueCount = uniqueData ? uniqueData.length : 0;
+
+    // today's visits
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayISO = today.toISOString();
+    const { count: todayCount, error: errToday } = await supabase
+      .from('visitors')
+      .select('id', { count: 'exact', head: true })
+      .gte('visited_at', todayISO);
+    if (errToday) throw errToday;
+
+    return { totalCount: totalCount || 0, uniqueCount, todayCount: todayCount || 0 };
+  } catch (error) {
+    console.error('Error fetching visitor meta:', error);
+    return { totalCount: 0, uniqueCount: 0, todayCount: 0 };
   }
 };
 

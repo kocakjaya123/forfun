@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getVisitorStats } from '../utils/supabaseClient';
+import { getVisitorStats, getVisitorMeta } from '../utils/supabaseClient';
 
 export default function VisitorsPage() {
   const navigate = useNavigate();
@@ -11,40 +11,39 @@ export default function VisitorsPage() {
     todayVisits: 0
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage] = useState(50);
+  const [totalCount, setTotalCount] = useState(0);
 
   useEffect(() => {
-    loadVisitors();
+    loadMeta();
+    loadVisitors(1);
   }, []);
 
-  const loadVisitors = async () => {
+  const loadVisitors = async (page = 1) => {
     setIsLoading(true);
     try {
-      const data = await getVisitorStats();
-
-      if (data && data.length > 0) {
-        setVisitors(data);
-
-        // Calculate stats
-        const uniqueNames = new Set(data.map(v => v.visitor_name)).size;
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        
-        const todayCount = data.filter(v => {
-          const visitDate = new Date(v.visited_at);
-          visitDate.setHours(0, 0, 0, 0);
-          return visitDate.getTime() === today.getTime();
-        }).length;
-
-        setStats({
-          totalVisits: data.length,
-          uniqueVisitors: uniqueNames,
-          todayVisits: todayCount
-        });
-      }
+      const { data, count } = await getVisitorStats(page, perPage);
+      setVisitors(data || []);
+      setTotalCount(count || 0);
+      setCurrentPage(page);
     } catch (error) {
       console.error('Error loading visitors:', error);
     }
     setIsLoading(false);
+  };
+
+  const loadMeta = async () => {
+    try {
+      const meta = await getVisitorMeta();
+      setStats({
+        totalVisits: meta.totalCount || 0,
+        uniqueVisitors: meta.uniqueCount || 0,
+        todayVisits: meta.todayCount || 0
+      });
+    } catch (error) {
+      console.error('Error loading visitor meta:', error);
+    }
   };
 
   const formatDate = (dateStr) => {
@@ -220,14 +219,35 @@ export default function VisitorsPage() {
             </>
           )}
 
-          {/* Refresh Button */}
-          <div className="px-4 sm:px-8 py-4 sm:py-6 bg-gray-50 border-t-2 border-purple-200 flex justify-center">
-            <button
-              onClick={loadVisitors}
-              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-2 sm:py-3 px-6 sm:px-8 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg text-sm sm:text-base"
-            >
-              🔄 Refresh Data
-            </button>
+              {/* Pagination & Refresh */}
+          <div className="px-4 sm:px-8 py-4 sm:py-6 bg-gray-50 border-t-2 border-purple-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="text-sm text-gray-700">Menampilkan {visitors.length} dari {totalCount} pengunjung</div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => loadVisitors(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-2 bg-white/80 hover:bg-white text-gray-700 rounded-xl border"
+              >
+                ← Prev
+              </button>
+
+              <span className="text-sm text-gray-600">Halaman {currentPage} / {Math.max(1, Math.ceil(totalCount / perPage))}</span>
+
+              <button
+                onClick={() => loadVisitors(Math.min(Math.max(1, Math.ceil(totalCount / perPage)), currentPage + 1))}
+                disabled={currentPage >= Math.ceil(totalCount / perPage)}
+                className="px-3 py-2 bg-white/80 hover:bg-white text-gray-700 rounded-xl border"
+              >
+                Next →
+              </button>
+
+              <button
+                onClick={() => { loadMeta(); loadVisitors(currentPage); }}
+                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-2 px-4 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg text-sm"
+              >
+                🔄 Refresh
+              </button>
+            </div>
           </div>
         </div>
 

@@ -246,7 +246,7 @@ export default function LifeQuiz() {
 
   // Finished screen
   if (gameState === 'finished') {
-    const result = getResultMessage(score, 6);
+    const result = getResultMessage(score, 6, 'default');
     const wisdomQuote = getWisdomQuote(score);
 
     return (

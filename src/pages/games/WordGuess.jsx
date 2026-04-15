@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TraktirModal from '../../components/TraktirModal';
 import words from '../../data/words';
-import { calculateScore, normalizeAnswer, triggerHeartRain, getWisdomQuote } from '../../utils/gameUtils';
+import { calculateScore, normalizeAnswer, triggerHeartRain, getWisdomQuote, getResultMessage } from '../../utils/gameUtils';
 import { saveQuizResult } from '../../utils/supabaseClient';
 
 export default function WordGuess() {
@@ -137,9 +137,9 @@ export default function WordGuess() {
       <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-50 to-pink-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border-4 border-pink-300">
           <div className="text-center mb-8">
-            <div className="text-6xl mb-4">💕</div>
-            <h2 className="text-3xl font-bold text-pink-700 mb-2">Tebak Kata Cinta!</h2>
-            <p className="text-pink-600 text-lg font-semibold">👋 Hai, {playerName}!</p>
+            <div className="text-6xl mb-4">✨</div>
+              <h2 className="text-3xl font-bold text-purple-700 mb-2">Tebak Kata Impian!</h2>
+              <p className="text-purple-600 text-lg font-semibold">👋 Hai, {playerName}!</p>
           </div>
 
           <p className="text-center text-gray-600 mb-6">Durasi: 1 Menit</p>
@@ -348,7 +348,7 @@ function ResultsScreen({ playerName, score, totalCorrect, totalWords, totalAttem
     if (playerName && score >= 0) {
       saveQuizResult(
         playerName,
-        'Tebak Kata Cinta',
+        'Tebak Kata Impian',
         score,
         totalCorrect,
         Array(totalAttempted),
@@ -357,41 +357,7 @@ function ResultsScreen({ playerName, score, totalCorrect, totalWords, totalAttem
     }
   }, []);
 
-  const getResultMessage = () => {
-    if (score >= 1500) {
-      return {
-        title: "🔥 Master Cinta! 🔥",
-        message: "Wow, kamu benar-benar memahami setiap nuansa perasaan! Hatimu penuh cinta dan wisdom! 💖✨",
-        emoji: "👑"
-      };
-    } else if (score >= 1000) {
-      return {
-        title: "💕 Cinta Sejati! 💕",
-        message: "Kamu tahu banyak tentang cinta dan perasaan! Perasaanmu dalam dan tulus! 🌹",
-        emoji: "💞"
-      };
-    } else if (score >= 500) {
-      return {
-        title: "💗 Romantis! 💗",
-        message: "Kamu romantic dan memahami perasaan dengan baik! Terus berkembang yaa! 🌸",
-        emoji: "💓"
-      };
-    } else if (score >= 200) {
-      return {
-        title: "💌 Pemula Cinta! 💌",
-        message: "Kamu mulai memahami dunia perasaan! Syukur-syukur next time bisa lebih baik! 🎀",
-        emoji: "🥰"
-      };
-    } else {
-      return {
-        title: "🎮 Coba Lagi Ya! 🎮",
-        message: "Tidak apa-apa! Setiap permainan adalah kesempatan untuk belajar lebih banyak tentang cinta! 💫",
-        emoji: "😊"
-      };
-    }
-  };
-
-  const result = getResultMessage();
+  const result = getResultMessage(score, totalWords, 'dream');
   const wisdomQuote = getWisdomQuote(score);
 
   return (
@@ -444,9 +410,9 @@ function ResultsScreen({ playerName, score, totalCorrect, totalWords, totalAttem
         </div>
 
         <div className="mt-6 flex justify-center gap-2 text-2xl">
-          <span className="animate-float-heart">❤️</span>
-          <span className="animate-float-heart" style={{ animationDelay: '0.2s' }}>💕</span>
-          <span className="animate-float-heart" style={{ animationDelay: '0.4s' }}>💖</span>
+          <span className="animate-float-heart">✨</span>
+          <span className="animate-float-heart" style={{ animationDelay: '0.2s' }}>🌟</span>
+          <span className="animate-float-heart" style={{ animationDelay: '0.4s' }}>🎯</span>
         </div>
       </div>
     </div>
