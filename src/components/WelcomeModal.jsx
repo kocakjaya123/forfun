@@ -12,9 +12,16 @@ export default function WelcomeModal({ currentUser, onClose }) {
     // Prevent scrolling on background when modal is open
     document.body.style.overflow = 'hidden';
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = 'auto';
     };
   }, []);
+
+  useEffect(() => {
+    // Ensure scroll is restored when modal closes
+    if (!isOpen) {
+      document.body.style.overflow = 'auto';
+    }
+  }, [isOpen]);
 
   const handleClose = () => {
     setIsAnimating(false);
