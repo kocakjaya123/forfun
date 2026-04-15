@@ -133,31 +133,31 @@ export default function LeaderboardPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-100 via-orange-50 to-yellow-100 pb-12">
       {/* Header */}
-      <div className="bg-gradient-to-r from-yellow-400 to-orange-400 shadow-lg sticky top-0 z-20 py-6">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-4xl font-bold text-white">🏆 Leaderboard</h1>
+      <div className="bg-gradient-to-r from-yellow-400 to-orange-400 shadow-lg sticky top-0 z-20 py-4 sm:py-6">
+        <div className="max-w-6xl mx-auto px-3 sm:px-4">
+          <div className="flex items-center justify-between mb-2 sm:mb-4 gap-2">
+            <h1 className="text-2xl sm:text-4xl font-bold text-white truncate">🏆 Leaderboard</h1>
             <button
               onClick={() => navigate('/')}
-              className="bg-white/20 hover:bg-white/30 text-white font-bold py-2 px-4 rounded-full transition-all text-lg"
+              className="bg-white/20 hover:bg-white/30 text-white font-bold py-2 px-3 sm:px-4 rounded-full transition-all text-xs sm:text-lg flex-shrink-0"
             >
               ← Home
             </button>
           </div>
-          <p className="text-white/90 text-sm">Ranking pemain dengan skor tertinggi</p>
+          <p className="text-white/90 text-xs sm:text-sm">Ranking pemain dengan skor tertinggi</p>
         </div>
       </div>
 
       {/* Game Selection */}
-      <div className="max-w-6xl mx-auto px-4 py-6">
-        <div className="bg-white rounded-2xl p-4 shadow-lg border-3 border-yellow-200">
-          <p className="text-sm font-bold text-gray-700 mb-3">Pilih Game:</p>
-          <div className="flex flex-wrap gap-2">
+      <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
+        <div className="bg-white rounded-2xl p-3 sm:p-4 shadow-lg border-3 border-yellow-200">
+          <p className="text-xs sm:text-sm font-bold text-gray-700 mb-3">Pilih Game:</p>
+          <div className="flex flex-wrap gap-2 sm:gap-3">
             {gameTypes.map((game) => (
               <button
                 key={game.id}
                 onClick={() => setSelectedGame(game.id)}
-                className={`px-4 py-2 rounded-xl font-bold transition-all ${
+                className={`px-2 sm:px-4 py-1 sm:py-2 rounded-lg sm:rounded-xl font-bold text-xs sm:text-sm transition-all flex-shrink-0 ${
                   selectedGame === game.id
                     ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white scale-105 shadow-lg'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -171,21 +171,21 @@ export default function LeaderboardPage() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
         {isLoading ? (
-          <div className="bg-white rounded-3xl p-12 shadow-2xl border-4 border-yellow-200 text-center">
-            <p className="text-2xl">⏳ Memuat leaderboard...</p>
+          <div className="bg-white rounded-3xl p-8 sm:p-12 shadow-2xl border-4 border-yellow-200 text-center">
+            <p className="text-lg sm:text-2xl">⏳ Memuat leaderboard...</p>
           </div>
         ) : filteredLeaderboard.length === 0 ? (
-          <div className="bg-white rounded-3xl p-12 shadow-2xl border-4 border-yellow-200 text-center">
-            <p className="text-2xl text-gray-600">📭 Belum ada data untuk game ini</p>
+          <div className="bg-white rounded-3xl p-8 sm:p-12 shadow-2xl border-4 border-yellow-200 text-center">
+            <p className="text-lg sm:text-2xl text-gray-600">📭 Belum ada data untuk game ini</p>
           </div>
         ) : (
           <div className="space-y-4">
             {filteredLeaderboard.map((player, idx) => (
               <div
                 key={`${player.player_name}-${idx}`}
-                className={`rounded-2xl p-6 border-4 shadow-lg transition-all duration-300 hover:scale-102 ${
+                className={`rounded-2xl p-4 sm:p-6 border-4 shadow-lg transition-all duration-300 hover:scale-102 ${
                   idx === 0
                     ? 'bg-gradient-to-r from-yellow-200 to-orange-200 border-yellow-400'
                     : idx === 1
@@ -195,50 +195,49 @@ export default function LeaderboardPage() {
                     : 'bg-white border-gray-300'
                 }`}
               >
-                <div className="flex items-center gap-4">
-                  {/* Rank */}
-                  <div className="text-4xl font-bold">{getMedalEmoji(idx + 1)}</div>
-
-                  {/* Player Info */}
-                  <div className="flex-1">
-                    <h3 className="text-2xl font-bold text-gray-800 mb-2">
-                      {player.player_name}
-                    </h3>
-                    <div className="grid grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <p className="text-gray-600">Games Played</p>
-                        <p className="text-lg font-bold text-blue-600">
-                          {selectedGame === 'all' ? player.games_played : player.timesPlayed}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-gray-600">Accuracy</p>
-                        <p className="text-lg font-bold text-green-600">
-                          {player.accuracy}%
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-gray-600">Best Score</p>
-                        <p className="text-lg font-bold text-purple-600">
-                          {selectedGame === 'all' ? player.best_score : player.bestScore}
-                        </p>
-                      </div>
+                {/* Mobile/Tablet Layout */}
+                <div className="space-y-3">
+                  {/* Header Row - Rank and Name */}
+                  <div className="flex items-start gap-3 sm:gap-4">
+                    <div className="text-3xl sm:text-4xl font-bold flex-shrink-0">{getMedalEmoji(idx + 1)}</div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg sm:text-2xl font-bold text-gray-800 truncate">
+                        {player.player_name}
+                      </h3>
+                    </div>
+                    {/* Score Box - Right Aligned */}
+                    <div className="text-center bg-white/50 rounded-lg sm:rounded-xl p-2 sm:p-3 flex-shrink-0">
+                      <p className="text-gray-600 text-xs font-bold">SKOR</p>
+                      <p className="text-2xl sm:text-3xl font-bold text-orange-600">{player.displayScore}</p>
                     </div>
                   </div>
 
-                  {/* Total Score Box */}
-                  <div className="text-center bg-white/50 rounded-xl p-4 min-w-[120px]">
-                    <p className="text-gray-600 text-xs font-bold">SKOR</p>
-                    <p className="text-4xl font-bold text-orange-600">{player.displayScore}</p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {player.accuracy}% benar
-                    </p>
+                  {/* Stats Grid - Responsive */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm">
+                    <div className="bg-white/50 rounded-lg p-2">
+                      <p className="text-gray-600 font-bold">Games</p>
+                      <p className="text-lg sm:text-xl font-bold text-blue-600">
+                        {selectedGame === 'all' ? player.games_played : player.timesPlayed}
+                      </p>
+                    </div>
+                    <div className="bg-white/50 rounded-lg p-2">
+                      <p className="text-gray-600 font-bold">Accuracy</p>
+                      <p className="text-lg sm:text-xl font-bold text-green-600">
+                        {player.accuracy}%
+                      </p>
+                    </div>
+                    <div className="bg-white/50 rounded-lg p-2">
+                      <p className="text-gray-600 font-bold">Best</p>
+                      <p className="text-lg sm:text-xl font-bold text-purple-600">
+                        {selectedGame === 'all' ? player.best_score : player.bestScore}
+                      </p>
+                    </div>
                   </div>
-                </div>
 
-                {/* Last Played */}
-                <div className="mt-4 pt-4 border-t-2 border-white/30 text-xs text-gray-600">
-                  Last played: {formatDate(player.last_played)}
+                  {/* Last Played - Full Width */}
+                  <div className="pt-2 sm:pt-3 border-t-2 border-white/30 text-xs text-gray-600">
+                    Last played: {formatDate(player.last_played)}
+                  </div>
                 </div>
               </div>
             ))}

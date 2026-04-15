@@ -37,6 +37,20 @@ export default function TrueOrFalse() {
     return () => clearInterval(timer);
   }, [gameState]);
 
+  // Save result when game finishes
+  useEffect(() => {
+    if (gameState === 'finished' && playerName && score >= 0) {
+      saveQuizResult(
+        playerName,
+        'Benar atau Salah',
+        score,
+        totalCorrect,
+        [],
+        duration
+      );
+    }
+  }, [gameState]);
+
   const startGame = () => {
     setGameState('playing');
     setTimeLeft(duration);
@@ -261,20 +275,6 @@ export default function TrueOrFalse() {
   if (gameState === 'finished') {
     const result = getResultMessage(score, 10);
     const wisdomQuote = getWisdomQuote(score);
-
-    // Save result to database when component mounts
-    useEffect(() => {
-      if (playerName && score >= 0) {
-        saveQuizResult(
-          playerName,
-          'Benar atau Salah',
-          score,
-          totalCorrect,
-          [],
-          duration
-        );
-      }
-    }, []);
 
     return (
       <div className="min-h-screen bg-gradient-to-br from-rose-100 via-orange-50 to-rose-100 flex items-center justify-center p-4 pb-12">

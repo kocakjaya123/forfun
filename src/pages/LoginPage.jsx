@@ -73,11 +73,11 @@ export default function LoginPage({ onLoginSuccess }) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-purple-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border-4 border-purple-300">
-        <div className="text-center mb-8">
-          <div className="text-6xl mb-4">👤</div>
-          <h1 className="text-3xl font-bold text-purple-700 mb-2">Selamat Datang!</h1>
+    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-purple-100 flex items-center justify-center p-3 sm:p-4">
+      <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border-4 border-purple-300">
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="text-5xl sm:text-6xl mb-3 sm:mb-4">👤</div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-purple-700 mb-1 sm:mb-2">Selamat Datang!</h1>
           <p className="text-gray-600">Masukkan nama untuk melanjutkan</p>
         </div>
 

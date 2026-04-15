@@ -34,6 +34,20 @@ export default function MatchingGame() {
     return () => clearInterval(timer);
   }, [gameState]);
 
+  // Save result when game finishes
+  useEffect(() => {
+    if (gameState === 'finished' && playerName && score >= 0) {
+      saveQuizResult(
+        playerName,
+        'Pasangkan Kata',
+        score,
+        matched.size / 2,
+        [],
+        duration
+      );
+    }
+  }, [gameState]);
+
   const startGame = () => {
     setGameState('playing');
     setTimeLeft(duration);
@@ -225,20 +239,6 @@ export default function MatchingGame() {
   if (gameState === 'finished') {
     const result = getResultMessage(score, 10);
     const wisdomQuote = getWisdomQuote(score);
-
-    // Save result to database when component mounts
-    useEffect(() => {
-      if (playerName && score >= 0) {
-        saveQuizResult(
-          playerName,
-          'Pasangkan Kata',
-          score,
-          matched.size / 2,
-          [],
-          duration
-        );
-      }
-    }, []);
 
     return (
       <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-50 to-indigo-100 flex items-center justify-center p-4 pb-12">

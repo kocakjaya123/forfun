@@ -178,25 +178,25 @@ export default function LifeQuiz() {
       <div className="min-h-screen bg-gradient-to-br from-blue-100 via-cyan-50 to-blue-100 pb-12">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-400 to-blue-300 shadow-lg sticky top-0 z-20">
-          <div className="max-w-4xl mx-auto px-4 py-4">
-            <div className="flex justify-between items-center gap-4">
-              <div>
-                <p className="text-white/80 text-sm">Skor</p>
-                <p className="text-2xl font-bold text-white">{score}</p>
+          <div className="max-w-4xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
+            <div className="flex justify-between items-center gap-2 sm:gap-4">
+              <div className="text-center">
+                <p className="text-white/80 text-xs sm:text-sm">Skor</p>
+                <p className="text-lg sm:text-2xl font-bold text-white">{score}</p>
               </div>
               <div className="text-center">
-                <p className="text-white/80 text-sm">Benar</p>
-                <p className="text-2xl font-bold text-white">{totalCorrect}</p>
+                <p className="text-white/80 text-xs sm:text-sm">Benar</p>
+                <p className="text-lg sm:text-2xl font-bold text-white">{totalCorrect}</p>
               </div>
               <div className="text-center">
-                <p className="text-white/80 text-sm">Waktu</p>
-                <p className={`text-2xl font-bold ${timeLeft <= 10 ? 'text-red-200 animate-pulse' : 'text-white'}`}>
+                <p className="text-white/80 text-xs sm:text-sm">Waktu</p>
+                <p className={`text-lg sm:text-2xl font-bold ${timeLeft <= 10 ? 'text-red-200 animate-pulse' : 'text-white'}`}>
                   {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')}
                 </p>
               </div>
               <button
                 onClick={() => navigate('/')}
-                className="bg-white/20 hover:bg-white/30 text-white font-bold py-2 px-4 rounded-full transition-all text-lg"
+                className="bg-white/20 hover:bg-white/30 text-white font-bold py-1 sm:py-2 px-2 sm:px-4 rounded-full transition-all text-xs sm:text-lg flex-shrink-0"
               >
                 🏠 Home
               </button>
@@ -205,9 +205,9 @@ export default function LifeQuiz() {
         </div>
 
         {/* Main Content */}
-        <div className="max-w-2xl mx-auto px-4 py-8">
+        <div className="max-w-2xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
           {/* Question Card */}
-          <div className="bg-white rounded-3xl p-8 shadow-2xl border-4 border-blue-200 mb-8">
+          <div className="bg-white rounded-3xl p-4 sm:p-8 shadow-2xl border-4 border-blue-200 mb-6 sm:mb-8">
             <div className="text-6xl text-center mb-6">{currentQuiz.emoji}</div>
             
             <h3 className="text-2xl font-bold text-gray-800 text-center mb-8">

@@ -39,6 +39,20 @@ export default function AcakKata() {
     return () => clearInterval(timer);
   }, [gameState]);
 
+  // Save result when game finishes
+  useEffect(() => {
+    if (gameState === 'finished' && playerName && score >= 0) {
+      saveQuizResult(
+        playerName,
+        'Acak Kata',
+        score,
+        totalCorrect,
+        [],
+        duration
+      );
+    }
+  }, [gameState]);
+
   const startGame = () => {
     setGameState('playing');
     setTimeLeft(duration);
@@ -283,20 +297,6 @@ export default function AcakKata() {
   if (gameState === 'finished') {
     const result = getResultMessage(score, 10);
     const wisdomQuote = getWisdomQuote(score);
-
-    // Save result to database when component mounts
-    useEffect(() => {
-      if (playerName && score >= 0) {
-        saveQuizResult(
-          playerName,
-          'Acak Kata',
-          score,
-          totalCorrect,
-          [],
-          duration
-        );
-      }
-    }, []);
 
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-100 via-pink-50 to-blue-100 flex items-center justify-center p-4 pb-12">
