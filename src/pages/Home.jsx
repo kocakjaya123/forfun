@@ -40,11 +40,11 @@ export default function Home({ currentUser }) {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-green-50 to-blue-50 pb-12">
-      {/* Minimal decorative background elements */}
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-purple-100">
+      {/* Animated Background Elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-10 left-10 text-3xl opacity-10 animate-float-heart">🌟</div>
-        <div className="absolute bottom-20 right-10 text-3xl opacity-10 animate-float-heart" style={{ animationDelay: '0.4s' }}>🔥</div>
+        <div className="absolute top-20 right-32 w-96 h-96 bg-gradient-to-br from-purple-200 to-transparent rounded-full opacity-20 blur-3xl animate-pulse" style={{ animationDuration: '6s' }}></div>
+        <div className="absolute bottom-10 left-20 w-80 h-80 bg-gradient-to-br from-blue-200 to-transparent rounded-full opacity-20 blur-3xl animate-pulse" style={{ animationDuration: '8s', animationDelay: '2s' }}></div>
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-12 relative z-10">
@@ -78,66 +78,60 @@ export default function Home({ currentUser }) {
         </div>
 
         {/* Games Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {games.map((game) => (
-            <div key={game.id} className="transform hover:scale-105 transition-transform duration-300">
-              <GameCard
-                id={game.id}
-                title={game.title}
-                description={game.description}
-                emoji={game.emoji}
-                route={game.route}
-              />
-            </div>
-          ))}
-        </div>
-
-        {/* Info Section */}
-        <div className="bg-white/70 backdrop-blur rounded-3xl p-8 border-4 border-blue-300 shadow-lg">
-          <div className="max-w-2xl mx-auto">
-            <h3 className="text-2xl font-bold text-blue-700 mb-4 flex items-center gap-2">
-              <span>🚀</span> Cara Bermain <span>🚀</span>
-            </h3>
-            
-            <ul className="space-y-3 text-gray-700">
-              <li className="flex gap-3 items-start">
-                <span className="text-pink-500 font-bold text-xl">1️⃣</span>
-                <span><strong>Pilih Tim:</strong> Tentukan durasi timer sebelum mulai (1/2/3 menit)</span>
-              </li>
-              <li className="flex gap-3 items-start">
-                <span className="text-pink-500 font-bold text-xl">2️⃣</span>
-                <span><strong>Tebak Kata:</strong> Baca petunjuk dan tebak kata yang dimaksud</span>
-              </li>
-              <li className="flex gap-3 items-start">
-                <span className="text-pink-500 font-bold text-xl">3️⃣</span>
-                <span><strong>Gunakan Hint:</strong> Tersedia 3 hint per soal untuk membantu</span>
-              </li>
-              <li className="flex gap-3 items-start">
-                <span className="text-pink-500 font-bold text-xl">4️⃣</span>
-                <span><strong>Kumpulkan Poin:</strong> Semakin sedikit hint, semakin banyak poin! 💰</span>
-              </li>
-              <li className="flex gap-3 items-start">
-                <span className="text-pink-500 font-bold text-xl">5️⃣</span>
-                <span><strong>Lihat Hasil:</strong> Cek skor dan pesan romantis di akhir game</span>
-              </li>
-            </ul>
-
-            <div className="mt-6 p-4 bg-pink-100 rounded-2xl border-2 border-pink-300">
-              <p className="text-center text-pink-900 font-semibold">
-                💡 Tip: Jawab benar 5 kali berturut-turut dan lihat sesuatu yang spesial terjadi! 💫
-              </p>
-            </div>
+        <div className="mb-12 sm:mb-16">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 sm:mb-8">Pilih Game Mu</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {games.map((game) => (
+              <div key={game.id} className="transform hover:scale-105 transition-transform duration-300">
+                <GameCard
+                  id={game.id}
+                  title={game.title}
+                  description={game.description}
+                  emoji={game.emoji}
+                  route={game.route}
+                />
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Footer Hearts */}
-        <div className="mt-12 text-center">
-          <p className="text-gray-600 mb-3">Dibuat dengan ❤️ untuk yang special</p>
-          <div className="flex justify-center gap-2 text-2xl">
-            <span className="animate-float-heart">💕</span>
-            <span className="animate-float-heart" style={{ animationDelay: '0.2s' }}>💖</span>
-            <span className="animate-float-heart" style={{ animationDelay: '0.4s' }}>💗</span>
+        {/* How To Play Section */}
+        <div className="mb-12">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 sm:mb-8">Gimana Cara Mainnya? 🎮</h2>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            {[
+              { step: 1, title: "Pilih Game", desc: "Pilih salah satu game yang tersedia di atas" },
+              { step: 2, title: "Baca Petunjuk", desc: "Pahami soal dan instruksi game dengan baik" },
+              { step: 3, title: "Jawab Cepat", desc: "Selesaikan sebelum waktu habis" },
+              { step: 4, title: "Kumpulkan Poin", desc: "Dapatkan skor berdasarkan akurasi & kecepatan" },
+              { step: 5, title: "Lihat Ranking", desc: "Cek posisi kamu di leaderboard" }
+            ].map((item, idx) => (
+              <div key={idx} className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-4 sm:p-6 border-2 border-blue-200 hover:border-purple-400 transition-colors">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
+                    <span className="text-white font-bold text-sm sm:text-base">{item.step}</span>
+                  </div>
+                  <h3 className="font-bold text-gray-800 text-sm sm:text-base">{item.title}</h3>
+                </div>
+                <p className="text-gray-600 text-xs sm:text-sm">{item.desc}</p>
+              </div>
+            ))}
           </div>
+        </div>
+
+        {/* CTA Section */}
+        <div className="mb-12 bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 rounded-2xl p-8 sm:p-12 text-center text-white shadow-xl">
+          <h3 className="text-2xl sm:text-3xl font-bold mb-3">Siap untuk dimulai? 🚀</h3>
+          <p className="text-lg mb-6 opacity-95">Uji pengetahuan dan kemampuanmu sekarang juga!</p>
+          <a href="#pilih-game" className="inline-block px-8 py-3 bg-white text-purple-600 font-bold rounded-full hover:bg-gray-100 transition-colors text-lg">
+            Mulai Bermain →
+          </a>
+        </div>
+
+        {/* Footer */}
+        <div className="mt-12 text-center pb-6">
+          <p className="text-gray-600 text-lg font-semibold">💙 Dibuat untuk membantu mu mengenal diri lebih baik 🚀</p>
         </div>
       </div>
     </div>
