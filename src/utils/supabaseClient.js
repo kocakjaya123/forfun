@@ -3,17 +3,32 @@ import { createClient } from '@supabase/supabase-js';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  console.error('Missing Supabase environment variables. Please check .env');
+const MISSING_ENV = !SUPABASE_URL || !SUPABASE_ANON_KEY;
+if (MISSING_ENV) {
+  console.error('Missing Supabase environment variables. Please check .env or .env.local and restart the dev server.');
 }
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: { persistSession: false }
-});
+let _supabase = null;
+if (!MISSING_ENV) {
+  try {
+    _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false } });
+  } catch (e) {
+    console.error('Failed to create Supabase client:', e?.message || e);
+    _supabase = null;
+  }
+}
+
+const getSupabase = () => {
+  if (!_supabase) {
+    throw new Error('Supabase not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY and restart the dev server.');
+  }
+  return _supabase;
+};
 
 // TRANSACTIONS CRUD
 export const addTransaction = async ({ user_id = null, type, amount, category, description = '', transaction_date }) => {
   try {
+    const supabase = getSupabase();
     // ensure we attach the authenticated user's id when available
     let owner = user_id;
     if (!owner) {
@@ -50,6 +65,7 @@ export const addTransaction = async ({ user_id = null, type, amount, category, d
 
 export const getTransactions = async ({ fromDate = null, toDate = null, type = null, category = null, search = null, limit = 100, offset = 0 } = {}) => {
   try {
+    const supabase = getSupabase();
     let query = supabase.from('transactions').select('*').order('transaction_date', { ascending: false }).range(offset, offset + limit - 1);
 
     if (fromDate) query = query.gte('transaction_date', fromDate);
@@ -73,6 +89,7 @@ export const getTransactions = async ({ fromDate = null, toDate = null, type = n
 
 export const updateTransaction = async (id, updates) => {
   try {
+    const supabase = getSupabase();
     const { data, error } = await supabase.from('transactions').update(updates).eq('id', id).select().single();
     if (error) throw error;
     return data;
@@ -84,6 +101,7 @@ export const updateTransaction = async (id, updates) => {
 
 export const deleteTransaction = async (id) => {
   try {
+    const supabase = getSupabase();
     const { error } = await supabase.from('transactions').delete().eq('id', id);
     if (error) throw error;
     return true;
@@ -98,6 +116,7 @@ export const getMonthlySummary = async (year, month) => {
   try {
     const from = `${year}-${String(month).padStart(2, '0')}-01`;
     const toDate = new Date(year, month, 0).toISOString().slice(0, 10);
+    const supabase = getSupabase();
 
     const { data, error } = await supabase.rpc('get_monthly_summary', { p_from: from, p_to: toDate });
     if (error) throw error;
@@ -105,7 +124,7 @@ export const getMonthlySummary = async (year, month) => {
   } catch (err) {
     console.warn('getMonthlySummary rpc not available, falling back to client aggregation', err.message || err);
     // Fallback: fetch raw transactions and compute client-side
-    const { data } = await getTransactions({ fromDate: from, toDate: toDate, limit: 1000 });
+    const { data } = await getTransactions({ fromDate: `${year}-${String(month).padStart(2, '0')}-01`, toDate: new Date(year, month, 0).toISOString().slice(0, 10), limit: 1000 });
     const incomes = (data || []).filter((t) => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0);
     const expenses = (data || []).filter((t) => t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0);
     return { incomes, expenses, transactions: data || [] };
@@ -114,11 +133,15 @@ export const getMonthlySummary = async (year, month) => {
 
 // Realtime subscription helper
 export const subscribeToTransactions = (callback) => {
-  const channel = supabase.channel('public:transactions').on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' }, (payload) => {
+  if (!_supabase) {
+    console.warn('subscribeToTransactions: Supabase not configured; subscription disabled.');
+    return () => {};
+  }
+  const channel = getSupabase().channel('public:transactions').on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' }, (payload) => {
     callback(payload);
   }).subscribe();
 
-  return () => supabase.removeChannel(channel);
+  return () => getSupabase().removeChannel(channel);
 };
 
 // Basic categories list (defaults) — can be extended to persist in DB
@@ -129,35 +152,43 @@ export const DEFAULT_CATEGORIES = {
 
 // ===== AUTH HELPERS =====
 export const signUp = async ({ email, password }) => {
+  const supabase = getSupabase();
   const { data, error } = await supabase.auth.signUp({ email, password });
   if (error) throw error;
   return data;
 };
 
 export const signIn = async ({ email, password }) => {
+  const supabase = getSupabase();
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) throw error;
   return data;
 };
 
 export const signOut = async () => {
+  const supabase = getSupabase();
   const { error } = await supabase.auth.signOut();
   if (error) throw error;
   return true;
 };
 
 export const getCurrentUser = async () => {
+  const supabase = getSupabase();
   const { data, error } = await supabase.auth.getUser();
   if (error) throw error;
   return data?.user || null;
 };
 
 export const onAuthStateChange = (cb) => {
-  const { data: subscription } = supabase.auth.onAuthStateChange((event, session) => {
+  if (!_supabase) {
+    console.warn('onAuthStateChange: Supabase not configured; auth events disabled.');
+    return { data: null };
+  }
+  const { data: subscription } = getSupabase().auth.onAuthStateChange((event, session) => {
     try { cb(event, session); } catch (e) { console.error(e); }
   });
   return subscription;
 };
 
-export default supabase;
+export default _supabase;
 
