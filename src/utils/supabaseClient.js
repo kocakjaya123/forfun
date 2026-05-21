@@ -39,6 +39,11 @@ export const addTransaction = async ({ user_id = null, type, amount, category, d
     return data;
   } catch (err) {
     console.error('addTransaction error', err);
+    // network-friendly message
+    const msg = (err?.message || '').toLowerCase();
+    if (msg.includes('failed to fetch') || msg.includes('name not resolved') || msg.includes('networkerror')) {
+      throw new Error(`Network error: cannot reach Supabase at ${SUPABASE_URL}. Check VITE_SUPABASE_URL in your .env and your network connection.`);
+    }
     throw err;
   }
 };
@@ -58,6 +63,10 @@ export const getTransactions = async ({ fromDate = null, toDate = null, type = n
     return { data: data || [], count };
   } catch (err) {
     console.error('getTransactions error', err);
+    const msg = (err?.message || '').toLowerCase();
+    if (msg.includes('failed to fetch') || msg.includes('name not resolved') || msg.includes('networkerror')) {
+      throw new Error(`Network error: cannot reach Supabase at ${SUPABASE_URL}. Check VITE_SUPABASE_URL in your .env and your network connection.`);
+    }
     return { data: [], count: 0 };
   }
 };
