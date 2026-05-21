@@ -25,9 +25,65 @@ const getSupabase = () => {
   return _supabase;
 };
 
+// --- Local/demo auth & storage fallback ---
+const DEMO_CREDENTIALS = { username: 'kocakjaya123', password: 'ursafirst123', id: '00000000-0000-4000-8000-000000000001' };
+const LOCAL_USER_KEY = 'ff_user';
+const LOCAL_TX_KEY = 'ff_txns';
+
+const genId = () => {
+  try { return crypto.randomUUID(); } catch (e) { return 'local-' + Date.now() + '-' + Math.random().toString(36).slice(2,9); }
+};
+
+const getLocalUser = () => {
+  try { const raw = localStorage.getItem(LOCAL_USER_KEY); return raw ? JSON.parse(raw) : null; } catch (e) { return null; }
+};
+
+const setLocalUser = (user) => {
+  localStorage.setItem(LOCAL_USER_KEY, JSON.stringify(user));
+  // emit auth event
+  try { window.dispatchEvent(new CustomEvent('ff:auth', { detail: { event: 'SIGNED_IN', session: { user } } })); } catch (e) {}
+};
+
+const clearLocalUser = () => {
+  localStorage.removeItem(LOCAL_USER_KEY);
+  try { window.dispatchEvent(new CustomEvent('ff:auth', { detail: { event: 'SIGNED_OUT', session: null } })); } catch (e) {}
+};
+
+const readLocalTxns = () => {
+  try { const raw = localStorage.getItem(LOCAL_TX_KEY); return raw ? JSON.parse(raw) : []; } catch (e) { return []; }
+};
+
+const writeLocalTxns = (txs) => {
+  localStorage.setItem(LOCAL_TX_KEY, JSON.stringify(txs));
+};
+
+const ensureDemoData = () => {
+  const user = getLocalUser();
+  if (!user) return;
+  const txs = readLocalTxns();
+  if (txs.length) return;
+  const now = new Date();
+  const sample = [
+    { id: genId(), user_id: user.id, type: 'income', amount: 10000000, category: 'Gaji', description: 'Gaji Bulanan', transaction_date: `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01`, created_at: new Date().toISOString() },
+    { id: genId(), user_id: user.id, type: 'income', amount: 500000, category: 'Uang Masuk', description: 'Transfer teman', transaction_date: `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-10`, created_at: new Date().toISOString() },
+    { id: genId(), user_id: user.id, type: 'expense', amount: 200000, category: 'Uang Keluar', description: 'Belanja bulanan', transaction_date: `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-15`, created_at: new Date().toISOString() }
+  ];
+  writeLocalTxns(sample);
+};
+
 // TRANSACTIONS CRUD
 export const addTransaction = async ({ user_id = null, type, amount, category, description = '', transaction_date }) => {
   try {
+    const localUser = getLocalUser();
+    if (localUser) {
+      const id = genId();
+      const payload = { id, user_id: localUser.id, type, amount, category, description, transaction_date, created_at: new Date().toISOString() };
+      const txs = readLocalTxns();
+      txs.unshift(payload);
+      writeLocalTxns(txs);
+      return payload;
+    }
+
     const supabase = getSupabase();
     // ensure we attach the authenticated user's id when available
     let owner = user_id;
@@ -65,6 +121,19 @@ export const addTransaction = async ({ user_id = null, type, amount, category, d
 
 export const getTransactions = async ({ fromDate = null, toDate = null, type = null, category = null, search = null, limit = 100, offset = 0 } = {}) => {
   try {
+    const localUser = getLocalUser();
+    if (localUser) {
+      let txs = readLocalTxns().filter(t => t.user_id === localUser.id);
+      if (fromDate) txs = txs.filter(t => t.transaction_date >= fromDate);
+      if (toDate) txs = txs.filter(t => t.transaction_date <= toDate);
+      if (type) txs = txs.filter(t => t.type === type);
+      if (category) txs = txs.filter(t => t.category === category);
+      if (search) txs = txs.filter(t => (t.description || '').toLowerCase().includes(search.toLowerCase()));
+      txs.sort((a,b) => b.transaction_date.localeCompare(a.transaction_date));
+      const sliced = txs.slice(offset, offset + limit);
+      return { data: sliced, count: txs.length };
+    }
+
     const supabase = getSupabase();
     let query = supabase.from('transactions').select('*').order('transaction_date', { ascending: false }).range(offset, offset + limit - 1);
 
@@ -89,6 +158,16 @@ export const getTransactions = async ({ fromDate = null, toDate = null, type = n
 
 export const updateTransaction = async (id, updates) => {
   try {
+    const localUser = getLocalUser();
+    if (localUser) {
+      const txs = readLocalTxns();
+      const idx = txs.findIndex(t => t.id === id && t.user_id === localUser.id);
+      if (idx === -1) throw new Error('Transaction not found');
+      txs[idx] = { ...txs[idx], ...updates };
+      writeLocalTxns(txs);
+      return txs[idx];
+    }
+
     const supabase = getSupabase();
     const { data, error } = await supabase.from('transactions').update(updates).eq('id', id).select().single();
     if (error) throw error;
@@ -101,6 +180,14 @@ export const updateTransaction = async (id, updates) => {
 
 export const deleteTransaction = async (id) => {
   try {
+    const localUser = getLocalUser();
+    if (localUser) {
+      const txs = readLocalTxns();
+      const filtered = txs.filter(t => !(t.id === id && t.user_id === localUser.id));
+      writeLocalTxns(filtered);
+      return true;
+    }
+
     const supabase = getSupabase();
     const { error } = await supabase.from('transactions').delete().eq('id', id);
     if (error) throw error;
@@ -152,42 +239,85 @@ export const DEFAULT_CATEGORIES = {
 
 // ===== AUTH HELPERS =====
 export const signUp = async ({ email, password }) => {
-  const supabase = getSupabase();
-  const { data, error } = await supabase.auth.signUp({ email, password });
-  if (error) throw error;
-  return data;
+  throw new Error('Sign up disabled. Use your existing account to sign in.');
 };
 
 export const signIn = async ({ email, password }) => {
-  const supabase = getSupabase();
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) throw error;
-  return data;
+  // Try Supabase auth if configured and email looks like an email
+  if (_supabase && email && email.includes('@')) {
+    const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      // If Supabase failed but credentials match demo, fallback to local
+      if (email === DEMO_CREDENTIALS.username && password === DEMO_CREDENTIALS.password) {
+        const user = { id: DEMO_CREDENTIALS.id, email: DEMO_CREDENTIALS.username, isDemo: true };
+        setLocalUser(user);
+        ensureDemoData();
+        return { user };
+      }
+      throw error;
+    }
+    return data;
+  }
+
+  // Local/demo auth fallback (username-based)
+  if (email === DEMO_CREDENTIALS.username && password === DEMO_CREDENTIALS.password) {
+    const user = { id: DEMO_CREDENTIALS.id, email: DEMO_CREDENTIALS.username, isDemo: true };
+    setLocalUser(user);
+    ensureDemoData();
+    return { user };
+  }
+
+  // If Supabase configured, try signIn anyway (emails-only path)
+  if (_supabase) {
+    const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    return data;
+  }
+
+  throw new Error('Invalid credentials');
 };
 
 export const signOut = async () => {
-  const supabase = getSupabase();
-  const { error } = await supabase.auth.signOut();
-  if (error) throw error;
+  const localUser = getLocalUser();
+  if (localUser) {
+    clearLocalUser();
+    return true;
+  }
+  if (_supabase) {
+    const { error } = await _supabase.auth.signOut();
+    if (error) throw error;
+    return true;
+  }
   return true;
 };
 
 export const getCurrentUser = async () => {
-  const supabase = getSupabase();
-  const { data, error } = await supabase.auth.getUser();
-  if (error) throw error;
-  return data?.user || null;
+  // Prefer Supabase session if available
+  if (_supabase) {
+    try {
+      const { data, error } = await _supabase.auth.getUser();
+      if (!error && data?.user) return data.user;
+    } catch (e) {
+      // fall through to local
+    }
+  }
+  return getLocalUser();
 };
 
 export const onAuthStateChange = (cb) => {
-  if (!_supabase) {
-    console.warn('onAuthStateChange: Supabase not configured; auth events disabled.');
-    return { data: null };
+  if (_supabase) {
+    const { data: subscription } = _supabase.auth.onAuthStateChange((event, session) => {
+      try { cb(event, session); } catch (e) { console.error(e); }
+    });
+    return subscription;
   }
-  const { data: subscription } = getSupabase().auth.onAuthStateChange((event, session) => {
-    try { cb(event, session); } catch (e) { console.error(e); }
-  });
-  return subscription;
+
+  const handler = (e) => {
+    const { event, session } = e.detail || {};
+    try { cb(event, session); } catch (err) { console.error(err); }
+  };
+  window.addEventListener('ff:auth', handler);
+  return { unsubscribe: () => window.removeEventListener('ff:auth', handler) };
 };
 
 export default _supabase;

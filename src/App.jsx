@@ -8,6 +8,7 @@ import Reports from './pages/Reports';
 import Goals from './pages/Goals';
 import Profile from './pages/Profile';
 import Auth from './pages/Auth';
+import RequireAuth from './components/RequireAuth';
 import './index.css';
 
 function App() {
@@ -16,13 +17,13 @@ function App() {
       <Navbar />
       <main className="max-w-6xl mx-auto px-4 py-6">
         <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/transactions" element={<Transactions />} />
-          <Route path="/add" element={<AddTransaction />} />
-          <Route path="/categories" element={<Categories />} />
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/goals" element={<Goals />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/" element={<RequireAuth><Dashboard /></RequireAuth>} />
+          <Route path="/transactions" element={<RequireAuth><Transactions /></RequireAuth>} />
+          <Route path="/add" element={<RequireAuth><AddTransaction /></RequireAuth>} />
+          <Route path="/categories" element={<RequireAuth><Categories /></RequireAuth>} />
+          <Route path="/reports" element={<RequireAuth><Reports /></RequireAuth>} />
+          <Route path="/goals" element={<RequireAuth><Goals /></RequireAuth>} />
+          <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
           <Route path="/auth" element={<Auth />} />
         </Routes>
       </main>
