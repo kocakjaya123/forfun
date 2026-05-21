@@ -28,8 +28,7 @@ const getSupabase = () => {
 
 export const isSupabaseConfigured = () => Boolean(_supabase);
 
-// --- Local/demo auth & storage fallback ---
-const DEMO_CREDENTIALS = { username: 'kocakjaya123', password: 'ursafirst123', id: '00000000-0000-4000-8000-000000000001' };
+// Local storage keys and helpers
 const LOCAL_USER_KEY = 'ff_user';
 const LOCAL_TX_KEY = 'ff_txns';
 
@@ -42,13 +41,13 @@ const getLocalUser = () => {
 };
 
 const setLocalUser = (user) => {
-  localStorage.setItem(LOCAL_USER_KEY, JSON.stringify(user));
-  // emit auth event
+  try { localStorage.setItem(LOCAL_USER_KEY, JSON.stringify(user)); } catch (e) {}
+  // emit auth event for non-supabase flows
   try { window.dispatchEvent(new CustomEvent('ff:auth', { detail: { event: 'SIGNED_IN', session: { user } } })); } catch (e) {}
 };
 
 const clearLocalUser = () => {
-  localStorage.removeItem(LOCAL_USER_KEY);
+  try { localStorage.removeItem(LOCAL_USER_KEY); } catch (e) {}
   try { window.dispatchEvent(new CustomEvent('ff:auth', { detail: { event: 'SIGNED_OUT', session: null } })); } catch (e) {}
 };
 
@@ -57,21 +56,7 @@ const readLocalTxns = () => {
 };
 
 const writeLocalTxns = (txs) => {
-  localStorage.setItem(LOCAL_TX_KEY, JSON.stringify(txs));
-};
-
-const ensureDemoData = () => {
-  const user = getLocalUser();
-  if (!user) return;
-  const txs = readLocalTxns();
-  if (txs.length) return;
-  const now = new Date();
-  const sample = [
-    { id: genId(), user_id: user.id, type: 'income', amount: 10000000, category: 'Gaji', description: 'Gaji Bulanan', transaction_date: `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01`, created_at: new Date().toISOString() },
-    { id: genId(), user_id: user.id, type: 'income', amount: 500000, category: 'Uang Masuk', description: 'Transfer teman', transaction_date: `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-10`, created_at: new Date().toISOString() },
-    { id: genId(), user_id: user.id, type: 'expense', amount: 200000, category: 'Uang Keluar', description: 'Belanja bulanan', transaction_date: `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-15`, created_at: new Date().toISOString() }
-  ];
-  writeLocalTxns(sample);
+  try { localStorage.setItem(LOCAL_TX_KEY, JSON.stringify(txs)); } catch (e) {}
 };
 
 // TRANSACTIONS CRUD
@@ -255,38 +240,13 @@ export const signUp = async ({ email, password }) => {
 };
 
 export const signIn = async ({ email, password }) => {
-  // Try Supabase auth if configured and email looks like an email
-  if (_supabase && email && email.includes('@')) {
-    const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      // If Supabase failed but credentials match demo, fallback to local
-      if (email === DEMO_CREDENTIALS.username && password === DEMO_CREDENTIALS.password) {
-        const user = { id: DEMO_CREDENTIALS.id, email: DEMO_CREDENTIALS.username, isDemo: true };
-        setLocalUser(user);
-        ensureDemoData();
-        return { user };
-      }
-      throw error;
-    }
-    return data;
+  if (!_supabase) {
+    throw new Error('Supabase is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env.');
   }
 
-  // Local/demo auth fallback (username-based)
-  if (email === DEMO_CREDENTIALS.username && password === DEMO_CREDENTIALS.password) {
-    const user = { id: DEMO_CREDENTIALS.id, email: DEMO_CREDENTIALS.username, isDemo: true };
-    setLocalUser(user);
-    ensureDemoData();
-    return { user };
-  }
-
-  // If Supabase configured, try signIn anyway (emails-only path)
-  if (_supabase) {
-    const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
-    return data;
-  }
-
-  throw new Error('Invalid credentials');
+  const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+  if (error) throw error;
+  return data;
 };
 
 export const signOut = async () => {
