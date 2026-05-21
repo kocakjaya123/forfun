@@ -28,6 +28,19 @@ export default function Auth() {
     e.preventDefault();
     setLoading(true);
     try {
+      // Temporary hardcoded demo login so user can access the app immediately
+      if (email === 'kocakjaya123' && password === 'ursafirst123') {
+        const demoUser = { id: 'local-' + Date.now(), email: 'kocakjaya123', isDemo: true };
+        try { localStorage.setItem('isLoggedIn', 'true'); } catch (e) {}
+        try { localStorage.setItem('user', JSON.stringify({ email: 'kocakjaya123' })); } catch (e) {}
+        // ensure the app's local user key is set and notify listeners
+        try { localStorage.setItem('ff_user', JSON.stringify(demoUser)); } catch (e) {}
+        try { window.dispatchEvent(new CustomEvent('ff:auth', { detail: { event: 'SIGNED_IN', session: { user: demoUser } } })); } catch (e) {}
+        toast.success('Login berhasil!');
+        navigate('/');
+        return;
+      }
+
       if (!supabaseConfigured) {
         toast.error('Supabase belum dikonfigurasi. Set VITE_SUPABASE_URL dan VITE_SUPABASE_ANON_KEY di .env');
         return;
@@ -51,7 +64,12 @@ export default function Auth() {
       }
     } catch (err) {
       console.error(err);
-      toast.error(err?.message || 'Auth error');
+      const msg = (err?.message || '').toString().toLowerCase();
+      if (msg.includes('invalid') || msg.includes('credentials') || msg.includes('wrong')) {
+        toast.error('Email atau password salah. Coba gunakan akun demo untuk sementara.');
+      } else {
+        toast.error(err?.message || 'Auth error');
+      }
     } finally {
       setLoading(false);
     }
