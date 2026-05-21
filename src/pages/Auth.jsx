@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { signIn, signUp, getCurrentUser, syncLocalToSupabase } from '../utils/supabaseClient';
+import { signIn, getCurrentUser, syncLocalToSupabase } from '../utils/supabaseClient';
 
 export default function Auth() {
   const [email, setEmail] = useState('');
@@ -11,6 +11,16 @@ export default function Auth() {
 
   // Demo credentials (provided by user for quick login)
   const DEMO_CREDENTIALS = { email: 'kocakjaya123', password: 'ursafirst123' };
+
+  useEffect(() => {
+    // if already authenticated, redirect to dashboard
+    (async () => {
+      try {
+        const u = await getCurrentUser();
+        if (u) navigate('/');
+      } catch (e) {}
+    })();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,26 +50,16 @@ export default function Auth() {
     }
   };
 
-  const handleDemoLogin = async () => {
-    setLoading(true);
-    try {
-      setEmail(DEMO_CREDENTIALS.email);
-      setPassword(DEMO_CREDENTIALS.password);
-      await signIn(DEMO_CREDENTIALS);
-      toast.success('Login sukses (demo)');
-      const user = await getCurrentUser();
-      if (user) navigate('/');
-    } catch (err) {
-      console.error('Demo login failed', err);
-      toast.error(err?.message || 'Demo login failed');
-    } finally {
-      setLoading(false);
-    }
+  // Fill demo credentials into the form (DO NOT auto-submit)
+  const handleFillDemo = () => {
+    setEmail(DEMO_CREDENTIALS.email);
+    setPassword(DEMO_CREDENTIALS.password);
+    toast('Demo credentials filled — click Sign In to proceed');
   };
 
   return (
-    <div className="max-w-md mx-auto mt-8">
-      <div className="card p-6">
+    <div className="min-h-screen flex items-center justify-center px-4">
+      <div className="card p-6 w-full max-w-md">
         <h2 className="text-2xl font-bold mb-4">Welcome Back</h2>
         <p className="text-sm text-gray-400 mb-4">Aplikasi personal finance sederhana — masuk untuk melihat transaksi Anda.</p>
         <form onSubmit={handleSubmit} className="space-y-3">
@@ -79,10 +79,11 @@ export default function Auth() {
         <div className="mt-4 border-t border-white/5 pt-4">
           <p className="text-sm text-gray-400 mb-2">Quick access (demo)</p>
           <div className="flex gap-2">
-            <button onClick={handleDemoLogin} disabled={loading} className="flex-1 px-4 py-2 bg-brand-emerald-dark hover:bg-brand-emerald rounded font-semibold">Use demo account</button>
+            <button onClick={handleFillDemo} disabled={loading} className="flex-1 px-4 py-2 bg-brand-emerald-dark hover:bg-brand-emerald rounded font-semibold">Use Demo Account</button>
             <button onClick={() => { setEmail(''); setPassword(''); }} className="px-3 py-2 bg-white/5 rounded">Clear</button>
           </div>
           <p className="text-xs text-gray-500 mt-2">Demo: <span className="font-mono">{DEMO_CREDENTIALS.email}</span> / <span className="font-mono">{DEMO_CREDENTIALS.password}</span></p>
+          <p className="text-xs text-gray-500 mt-2">Email asli: ardhiseptiand@gmail.com</p>
         </div>
       </div>
     </div>
