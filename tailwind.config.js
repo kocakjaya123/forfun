@@ -8,11 +8,11 @@ export default {
     extend: {
       colors: {
         brand: {
-          emerald: '#10b981',
-          emeraldDark: '#047857',
-          accent: '#f59e0b',
-          bg: '#0f172a',
-          muted: '#94a3b8'
+          'emerald': '#10b981',
+          'emerald-dark': '#047857',
+          'accent': '#f59e0b',
+          'bg': '#0f172a',
+          'muted': '#94a3b8'
         },
         income: '#10b981',
         expense: '#ef4444'

@@ -48,7 +48,7 @@ export default function Goals() {
       <div className="mb-4">
         <input value={title} onChange={e=>setTitle(e.target.value)} placeholder="Goal title" className="p-2 rounded bg-white/5 mr-2" />
         <input value={target} onChange={e=>setTarget(e.target.value)} placeholder="Target amount" className="p-2 rounded bg-white/5 mr-2" />
-        <button onClick={addGoal} className="px-3 py-2 bg-emerald-500 rounded">Add</button>
+        <button onClick={addGoal} className="px-3 py-2 bg-brand-emerald rounded">Add</button>
       </div>
 
       <div className="space-y-3">
@@ -65,7 +65,7 @@ export default function Goals() {
                 <div className="text-sm font-semibold">{progress}%</div>
               </div>
               <div className="w-full bg-white/5 rounded h-3 overflow-hidden">
-                <div style={{ width: `${progress}%` }} className="h-3 bg-emerald-500" />
+                <div style={{ width: `${progress}%` }} className="h-3 bg-brand-emerald" />
               </div>
               <div className="mt-2 text-right">
                 <button onClick={()=>removeGoal(g.id)} className="text-red-400 text-sm">Hapus</button>

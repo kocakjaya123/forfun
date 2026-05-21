@@ -81,7 +81,7 @@ export default function Dashboard() {
           <p className="text-sm text-gray-400">Ringkasan keuangan pribadi Anda</p>
         </div>
         <div className="flex items-center gap-3">
-          <Link to="/add" className="px-4 py-2 bg-emerald-500 text-black rounded-md font-semibold">+ Tambah Transaksi</Link>
+          <Link to="/add" className="px-4 py-2 bg-brand-emerald text-black rounded-md font-semibold">+ Tambah Transaksi</Link>
           <Link to="/reports" className="px-3 py-2 bg-white/5 rounded-md">Lihat Laporan</Link>
         </div>
       </div>

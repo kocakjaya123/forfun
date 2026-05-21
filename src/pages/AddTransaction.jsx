@@ -17,6 +17,7 @@ export default function AddTransaction() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!amount || isNaN(Number(amount))) return toast.error('Masukkan jumlah yang valid');
+    if (Number(amount) <= 0) return toast.error('Jumlah harus lebih besar dari 0');
     if (!category) return toast.error('Pilih kategori');
 
     setLoading(true);
@@ -37,7 +38,7 @@ export default function AddTransaction() {
       <h2 className="text-2xl font-bold mb-4">Tambah Transaksi</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex items-center gap-3">
-          <button type="button" onClick={() => setType('income')} className={`px-4 py-2 rounded ${type === 'income' ? 'bg-emerald-500 text-black' : 'bg-white/5'}`}>Income</button>
+          <button type="button" onClick={() => setType('income')} className={`px-4 py-2 rounded ${type === 'income' ? 'bg-brand-emerald text-black' : 'bg-white/5'}`}>Income</button>
           <button type="button" onClick={() => setType('expense')} className={`px-4 py-2 rounded ${type === 'expense' ? 'bg-red-500 text-black' : 'bg-white/5'}`}>Expense</button>
         </div>
 
@@ -65,7 +66,7 @@ export default function AddTransaction() {
         </div>
 
         <div className="flex items-center gap-3">
-          <button type="submit" disabled={loading} className="px-6 py-3 bg-emerald-500 text-black rounded-md font-semibold">{loading ? 'Menyimpan...' : 'Simpan'}</button>
+          <button type="submit" disabled={loading} className="px-6 py-3 bg-brand-emerald text-black rounded-md font-semibold">{loading ? 'Menyimpan...' : 'Simpan'}</button>
           <button type="button" onClick={() => navigate(-1)} className="px-4 py-2 bg-white/5 rounded-md">Batal</button>
         </div>
       </form>

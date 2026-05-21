@@ -39,7 +39,7 @@ export default function Categories() {
           <option value="expense">Expense</option>
         </select>
         <input value={newCat} onChange={e=>setNewCat(e.target.value)} placeholder="Nama kategori" className="p-2 rounded bg-white/5 flex-1" />
-        <button onClick={add} className="px-4 py-2 bg-emerald-500 rounded">Tambah</button>
+        <button onClick={add} className="px-4 py-2 bg-brand-emerald rounded">Tambah</button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

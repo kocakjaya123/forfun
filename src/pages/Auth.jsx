@@ -61,14 +61,14 @@ export default function Auth() {
             <input type="password" value={password} onChange={e=>setPassword(e.target.value)} required className="w-full p-3 rounded bg-white/5" />
           </div>
           <div className="flex items-center gap-2">
-            <button type="submit" disabled={loading} className="px-4 py-2 bg-emerald-500 rounded font-semibold">{loading ? 'Processing...' : 'Sign In'}</button>
+            <button type="submit" disabled={loading} className="px-4 py-2 bg-brand-emerald rounded font-semibold">{loading ? 'Processing...' : 'Sign In'}</button>
           </div>
         </form>
 
         <div className="mt-4 border-t border-white/5 pt-4">
           <p className="text-sm text-gray-400 mb-2">Quick access (demo)</p>
           <div className="flex gap-2">
-            <button onClick={handleDemoLogin} disabled={loading} className="flex-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded font-semibold">Use demo account</button>
+            <button onClick={handleDemoLogin} disabled={loading} className="flex-1 px-4 py-2 bg-brand-emerald-dark hover:bg-brand-emerald rounded font-semibold">Use demo account</button>
             <button onClick={() => { setEmail(''); setPassword(''); }} className="px-3 py-2 bg-white/5 rounded">Clear</button>
           </div>
           <p className="text-xs text-gray-500 mt-2">Demo: <span className="font-mono">{DEMO_CREDENTIALS.email}</span> / <span className="font-mono">{DEMO_CREDENTIALS.password}</span></p>

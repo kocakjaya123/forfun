@@ -10,6 +10,7 @@ import Profile from './pages/Profile';
 import Auth from './pages/Auth';
 import RequireAuth from './components/RequireAuth';
 import './index.css';
+import FabAdd from './components/FabAdd';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
           <Route path="/auth" element={<Auth />} />
         </Routes>
       </main>
+      <FabAdd />
     </Router>
   );
 }

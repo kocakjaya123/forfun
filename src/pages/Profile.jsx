@@ -34,7 +34,7 @@ export default function Profile() {
           </select>
         </div>
         <div>
-          <button onClick={save} className="px-4 py-2 bg-emerald-500 rounded">Save</button>
+          <button onClick={save} className="px-4 py-2 bg-brand-emerald rounded">Save</button>
         </div>
       </div>
     </div>
