@@ -240,19 +240,27 @@ export const signUp = async ({ email, password }) => {
 };
 
 export const signIn = async ({ email, password }) => {
-  // If Supabase is configured, use real auth
+  // If env variables were provided but client failed to initialize, do not fallback to local demo
+  if (!MISSING_ENV && !_supabase) {
+    throw new Error('Supabase configured but client failed to initialize. Check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
+  }
+
+  // If Supabase client is available, use real auth
   if (_supabase) {
     const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
     return data;
   }
 
-  // Local/demo fallback: allow signing in locally when Supabase env is missing.
-  // This creates a local user persisted in localStorage and enables the app to run offline.
-  if (!email) throw new Error('Email/username required for local mode');
-  const user = { id: genId(), email, isDemo: true };
-  setLocalUser(user);
-  return { user };
+  // Local/demo fallback: only when env is missing
+  if (MISSING_ENV) {
+    if (!email) throw new Error('Email/username required for local mode');
+    const user = { id: genId(), email, isDemo: true };
+    setLocalUser(user);
+    return { user };
+  }
+
+  throw new Error('Unable to sign in');
 };
 
 export const signOut = async () => {
