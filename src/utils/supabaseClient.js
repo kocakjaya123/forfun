@@ -125,6 +125,8 @@ export const getTransactions = async ({ fromDate = null, toDate = null, type = n
         const sbUser = userData?.user || null;
         if (sbUser) {
           let query = supabase.from('transactions').select('*', { count: 'exact' }).order('transaction_date', { ascending: false }).range(offset, offset + limit - 1);
+          // scope to current user for clarity (RLS should also enforce this)
+          query = query.eq('user_id', sbUser.id);
           if (fromDate) query = query.gte('transaction_date', fromDate);
           if (toDate) query = query.lte('transaction_date', toDate);
           if (type) query = query.eq('type', type);
@@ -177,7 +179,7 @@ export const updateTransaction = async (id, updates) => {
         const { data: userData } = await supabase.auth.getUser();
         const sbUser = userData?.user || null;
         if (sbUser) {
-          const { data, error } = await supabase.from('transactions').update(updates).eq('id', id).select().single();
+          const { data, error } = await supabase.from('transactions').update(updates).eq('id', id).eq('user_id', sbUser.id).select().single();
           if (error) throw error;
           return data;
         }
@@ -211,7 +213,7 @@ export const deleteTransaction = async (id) => {
         const { data: userData } = await supabase.auth.getUser();
         const sbUser = userData?.user || null;
         if (sbUser) {
-          const { error } = await supabase.from('transactions').delete().eq('id', id);
+          const { error } = await supabase.from('transactions').delete().eq('id', id).eq('user_id', sbUser.id);
           if (error) throw error;
           return true;
         }

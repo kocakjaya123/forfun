@@ -23,12 +23,20 @@ export default function AddTransaction() {
 
     setLoading(true);
     try {
-      await addTransaction({ type, amount: Number(amount), category, description, transaction_date: date });
+      const res = await addTransaction({ type, amount: Number(amount), category, description, transaction_date: date });
       toast.success('Transaksi berhasil ditambahkan');
       navigate('/');
+      return res;
     } catch (err) {
-      console.error(err);
-      toast.error('Gagal menambahkan transaksi');
+      console.error('AddTransaction error', err);
+      const msg = (err?.message || '').toString().toLowerCase();
+      if (msg.includes('not authenticated')) {
+        toast.error('Silakan login ke akun Supabase untuk menyimpan transaksi online.');
+      } else if (msg.includes('network error') || msg.includes('cannot reach supabase')) {
+        toast.error('Tidak dapat terhubung ke Supabase. Periksa koneksi atau pengaturan VITE_SUPABASE_URL.');
+      } else {
+        toast.error(err?.message || 'Gagal menambahkan transaksi');
+      }
     } finally {
       setLoading(false);
     }
@@ -45,7 +53,7 @@ export default function AddTransaction() {
 
         <div>
           <label className="block text-sm text-gray-300 mb-1">Amount</label>
-          <input value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="100000" className="w-full p-3 rounded bg-white/5" />
+          <input type="number" inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="100000" className="w-full p-3 rounded bg-white/5" step="0.01" min="0" />
         </div>
 
         <div>
