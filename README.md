@@ -1,71 +1,72 @@
-## UangKu — Personal Finance Tracker
+# UangKu — Personal Finance Tracker
 
-UangKu adalah aplikasi web untuk mengelola keuangan pribadi: input pemasukan, pengeluaran, visualisasi, laporan bulanan, dan target tabungan.
+UangKu membantu kamu mengelola keuangan pribadi dengan cepat, aman, dan enak dipandang.
+Dirancang untuk pemakaian sehari-hari: catat pemasukan & pengeluaran, lihat ringkasan, dan capai target tabungan.
 
-Fitur utama:
-- Dashboard dengan total balance, income & expense bulan ini, dan charts
-- Tambah transaksi (Income / Expense) dengan kategori, tanggal, dan catatan
-- Daftar transaksi lengkap dengan pencarian, filter, dan penghapusan
-- Manage kategori (lokal, tersimpan di browser)
-- Laporan bulanan dan chart (pie & trend)
-- Goals / Savings tracking
-- Profile & settings (nama, currency)
+Highlights
+- Tema konsisten: hijau-emerald + gold (accent) untuk tampilan yang hangat dan profesional
+- Dukungan offline/demo: localStorage demo bila Supabase belum dikonfigurasi
+- Floating action button untuk menambah transaksi cepat
+- Format mata uang Rupiah rapi (contoh: Rp 1.234.567)
 
-Tech stack:
-- React 18 + Vite
-- Tailwind CSS
-- React Router v7
-- Supabase (Postgres) via `@supabase/supabase-js`
-- Recharts, date-fns, lucide-react, react-hot-toast, canvas-confetti
+Fitur
+- Dashboard: total balance, income & expense, grafik tren, dan ringkasan harian
+- Tambah Transaksi: income/expense, kategori, tanggal, dan catatan
+- Daftar Transaksi: cari, filter, dan hapus transaksi
+- Laporan: pie chart kategori & tren balance per hari
+- Goals: atur target tabungan dan lihat progress
+- Auth (Supabase) atau demo (local fallback)
 
-Quick start
+Screenshots
+- Jika ingin menambahkan screenshot, taruh file di `public/screenshots/` lalu referensikan di README. (Tidak ada screenshot default saat ini.)
+
+Quick Start (Local Development)
 1. Install dependencies:
 
 ```bash
 npm install
 ```
 
-2. Copy environment variables (see `.env.example`) and fill your Supabase URL and anon key.
+2. Salin variabel environment:
 
-3. Run dev server:
-
-```bash
-npm run dev
-```
-
-Database (Supabase)
-- Saya menambahkan tabel `transactions` di `SUPABASE_SCHEMA.sql`. Jalankan SQL tersebut di Supabase SQL editor.
-- Contoh schema:
-
-```sql
-CREATE TABLE transactions (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id TEXT,
-  type TEXT CHECK (type IN ('income', 'expense')) NOT NULL,
-  amount DECIMAL(12,2) NOT NULL,
-  category TEXT NOT NULL,
-  description TEXT,
-  transaction_date DATE NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-```
-
-Env vars (example in `.env.example`):
+Buat file `.env` atau `.env.local` dan isi:
 
 ```
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
 ```
 
-Developer notes
-- Supabase client helpers are in `src/utils/supabaseClient.js` (CRUD + realtime helper)
-- Pages live in `src/pages/` (Dashboard, Transactions, AddTransaction, Categories, Reports, Goals, Profile)
-- Components and styles use Tailwind; theme is dark-first and mobile-friendly
+3. Jalankan dev server:
 
-Next steps you might want me to do:
-- Integrate authenticated users + RLS per-user transactions
-- Persist categories in Supabase
-- Add edit-transaction UI
-- Add tests and CI
+```bash
+npm run dev
+```
 
-Enjoy UangKu — aplikasi ini sekarang bernama `UangKu`.
+Build for production:
+
+```bash
+npm run build
+```
+
+Supabase setup
+1. Buat project baru di https://app.supabase.com dan catat `URL` dan `ANON KEY`.
+2. Di Supabase → SQL Editor, jalankan file `SUPABASE_SCHEMA.sql` untuk membuat tabel `transactions`.
+3. Aktifkan Row Level Security (RLS) jika ingin multi-user, dan tambahkan policy untuk membatasi akses ke pemilik data.
+
+File penting
+- `SUPABASE_SCHEMA.sql` — schema tabel `transactions`
+- `src/utils/supabaseClient.js` — helper CRUD + demo fallback
+- `src/pages/` — semua halaman aplikasi (Dashboard, Transactions, AddTransaction, Reports, Goals, Profile)
+
+Design & UX
+- Warna brand ada di `tailwind.config.js` (`brand.emerald` dan `brand.accent`).
+- Floating Action Button (`src/components/FabAdd.jsx`) untuk akses cepat ke form tambah transaksi.
+- Notifikasi menggunakan `react-hot-toast` dan konfeti saat balance positif (`canvas-confetti`).
+
+Troubleshooting
+- Jika ada error saat build, pastikan environment variables diisi. Untuk testing cepat, gunakan mode demo (masuk dengan username demo yang ada di `src/utils/supabaseClient.js`).
+
+Kontribusi
+- Fork, buat branch, dan kirim PR. Untuk perubahan besar, buka issue terlebih dahulu.
+
+Terima kasih sudah menggunakan UangKu — kalau mau, saya bisa bantu menambahkan CI, RLS per-user, atau integrasi edit transaksi.

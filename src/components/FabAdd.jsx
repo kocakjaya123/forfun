@@ -22,7 +22,7 @@ export default function FabAdd() {
   if (!show) return null;
 
   return (
-    <Link to="/add" className="fixed z-50 bottom-6 right-6 w-14 h-14 rounded-full flex items-center justify-center shadow-soft bg-brand-emerald text-black hover:scale-105 transition-transform">
+    <Link to="/add" aria-label="Tambah transaksi" className="fixed z-50 bottom-6 right-6 w-14 h-14 rounded-full flex items-center justify-center shadow-soft bg-brand-emerald text-black hover:scale-105 focus:outline-none focus:ring-2 focus:ring-brand-accent transition-transform">
       <Plus size={20} />
     </Link>
   );

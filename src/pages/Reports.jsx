@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getTransactions } from '../utils/supabaseClient';
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { formatRupiah } from '../utils/format';
 
 const COLORS = ['#f59e0b', '#10b981', '#ef4444', '#60a5fa', '#a78bfa', '#f97316'];
 
@@ -86,7 +87,7 @@ export default function Reports() {
                 <div className="font-medium">{t.category} <span className="text-sm text-gray-400">• {t.description}</span></div>
                 <div className="text-sm text-gray-400">{t.transaction_date}</div>
               </div>
-              <div className={"font-semibold " + (t.type==='income' ? 'income' : 'expense')}>{t.type==='income'?'+':'-'} Rp {Number(t.amount).toLocaleString('id-ID')}</div>
+              <div className={"font-semibold " + (t.type==='income' ? 'income' : 'expense')}>{t.type==='income'?'+ ':'- '}{formatRupiah(Number(t.amount))}</div>
             </div>
           ))}
         </div>

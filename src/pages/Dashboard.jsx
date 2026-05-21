@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getTransactions, subscribeToTransactions } from '../utils/supabaseClient';
 import { Link } from 'react-router-dom';
+import { formatRupiah } from '../utils/format';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
 import toast from 'react-hot-toast';
 import confetti from 'canvas-confetti';
@@ -93,15 +94,15 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="card p-4">
           <div className="text-sm text-gray-400">Total Balance</div>
-          <div className="text-2xl font-bold">Rp {summary.balance.toLocaleString('id-ID')}</div>
+            <div className="text-2xl font-bold">{formatRupiah(summary.balance)}</div>
         </div>
         <div className="card p-4">
           <div className="text-sm text-gray-400">Income Bulan Ini</div>
-          <div className="text-2xl font-bold text-income">+ Rp {summary.income.toLocaleString('id-ID')}</div>
+          <div className="text-2xl font-bold text-income">+ {formatRupiah(summary.income)}</div>
         </div>
         <div className="card p-4">
           <div className="text-sm text-gray-400">Expense Bulan Ini</div>
-          <div className="text-2xl font-bold text-expense">- Rp {summary.expense.toLocaleString('id-ID')}</div>
+          <div className="text-2xl font-bold text-expense">- {formatRupiah(summary.expense)}</div>
           <div className="text-sm text-gray-400 mt-2">Savings Rate: {summary.savingsRate}%</div>
         </div>
       </div>
@@ -150,7 +151,7 @@ export default function Dashboard() {
                 <div className="text-sm text-gray-400">{t.transaction_date}</div>
               </div>
               <div className={"font-semibold " + (t.type === 'income' ? 'income' : 'expense')}>
-                {t.type === 'income' ? '+' : '-'} Rp {Number(t.amount).toLocaleString('id-ID')}
+                {t.type === 'income' ? '+ ' : '- '}{formatRupiah(Number(t.amount))}
               </div>
             </div>
           ))}

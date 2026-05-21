@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { getTransactions } from '../utils/supabaseClient';
+import { formatRupiah } from '../utils/format';
 
 export default function Goals() {
   const [goals, setGoals] = useState([]);
@@ -42,7 +43,7 @@ export default function Goals() {
     <div className="max-w-2xl mx-auto">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-2xl font-bold">Goals & Savings</h2>
-        <div className="text-sm text-gray-400">Total Savings: Rp {savings.toLocaleString('id-ID')}</div>
+        <div className="text-sm text-gray-400">Total Savings: {formatRupiah(savings)}</div>
       </div>
 
       <div className="mb-4">
@@ -60,7 +61,7 @@ export default function Goals() {
               <div className="flex justify-between items-center mb-2">
                 <div>
                   <div className="font-medium">{g.title}</div>
-                  <div className="text-sm text-gray-400">Target: Rp {g.target.toLocaleString('id-ID')}</div>
+                  <div className="text-sm text-gray-400">Target: {formatRupiah(g.target)}</div>
                 </div>
                 <div className="text-sm font-semibold">{progress}%</div>
               </div>

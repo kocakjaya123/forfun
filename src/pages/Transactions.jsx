@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getTransactions, deleteTransaction, DEFAULT_CATEGORIES, subscribeToTransactions } from '../utils/supabaseClient';
 import toast from 'react-hot-toast';
+import { formatRupiah } from '../utils/format';
 
 export default function Transactions() {
   const [loading, setLoading] = useState(false);
@@ -72,7 +73,7 @@ export default function Transactions() {
               <div className="text-sm text-gray-400">{t.transaction_date}</div>
             </div>
             <div className="flex items-center gap-3">
-              <div className={"font-semibold " + (t.type === 'income' ? 'income' : 'expense')}>{t.type === 'income' ? '+' : '-'} Rp {Number(t.amount).toLocaleString('id-ID')}</div>
+              <div className={"font-semibold " + (t.type === 'income' ? 'income' : 'expense')}>{t.type === 'income' ? '+ ' : '- '}{formatRupiah(Number(t.amount))}</div>
               <button onClick={() => handleDelete(t.id)} className="px-3 py-1 rounded bg-red-600/40">Hapus</button>
             </div>
           </div>
