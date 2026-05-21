@@ -9,7 +9,6 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Demo credentials (provided by user for quick login)
   const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
   const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
   const supabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
@@ -61,9 +60,12 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
+      <div className="text-center mb-6">
+        <span className="text-4xl bg-gradient-to-br from-brand-emerald to-brand-accent p-3 rounded-lg inline-block">💰</span>
+        <div className="text-2xl font-extrabold text-white mt-3">UangKu</div>
+      </div>
       <div className="card p-6 w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-4">Welcome Back</h2>
-        <p className="text-sm text-gray-400 mb-4">Aplikasi personal finance sederhana — masuk untuk melihat transaksi Anda.</p>
+        <h2 className="text-2xl font-bold mb-4">Sign In to UangKu</h2>
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
             <label className="block text-sm text-gray-400 mb-1">Email atau username</label>
@@ -74,19 +76,9 @@ export default function Auth() {
             <input type="password" value={password} onChange={e=>setPassword(e.target.value)} required className="w-full p-3 rounded bg-white/5" />
           </div>
           <div className="flex items-center gap-2">
-            <button type="submit" disabled={loading} className="px-4 py-2 bg-brand-emerald rounded font-semibold">{loading ? 'Processing...' : 'Sign In'}</button>
+            <button type="submit" disabled={loading} className="px-4 py-2 bg-brand-emerald rounded font-semibold">{loading ? 'Signing In...' : 'Sign In'}</button>
           </div>
         </form>
-
-        <div className="mt-4 border-t border-white/5 pt-4">
-          <p className="text-sm text-gray-400 mb-2">Quick access (demo)</p>
-          <div className="flex gap-2">
-            <button onClick={handleFillDemo} disabled={loading} className="flex-1 px-4 py-2 bg-brand-emerald-dark hover:bg-brand-emerald rounded font-semibold">Use Demo Account</button>
-            <button onClick={() => { setEmail(''); setPassword(''); }} className="px-3 py-2 bg-white/5 rounded">Clear</button>
-          </div>
-          <p className="text-xs text-gray-500 mt-2">Demo: <span className="font-mono">{DEMO_CREDENTIALS.email}</span> / <span className="font-mono">{DEMO_CREDENTIALS.password}</span></p>
-          <p className="text-xs text-gray-500 mt-2">Email asli: ardhiseptiand@gmail.com</p>
-        </div>
       </div>
     </div>
   );

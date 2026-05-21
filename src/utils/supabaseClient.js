@@ -5,7 +5,7 @@ const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 const MISSING_ENV = !SUPABASE_URL || !SUPABASE_ANON_KEY;
 if (MISSING_ENV) {
-  console.error('Missing Supabase environment variables. Please check .env or .env.local and restart the dev server.');
+  console.warn('Supabase environment variables missing. App will run in local/demo mode. To enable Supabase, set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env and restart the dev server.');
 }
 
 let _supabase = null;
@@ -20,10 +20,13 @@ if (!MISSING_ENV) {
 
 const getSupabase = () => {
   if (!_supabase) {
-    throw new Error('Supabase not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY and restart the dev server.');
+    console.warn('Supabase client not initialized. Returning null.');
+    return null;
   }
   return _supabase;
 };
+
+export const isSupabaseConfigured = () => Boolean(_supabase);
 
 // --- Local/demo auth & storage fallback ---
 const DEMO_CREDENTIALS = { username: 'kocakjaya123', password: 'ursafirst123', id: '00000000-0000-4000-8000-000000000001' };
@@ -85,6 +88,9 @@ export const addTransaction = async ({ user_id = null, type, amount, category, d
     }
 
     const supabase = getSupabase();
+    if (!supabase) {
+      throw new Error('Supabase not configured. Cannot add transaction.');
+    }
     // ensure we attach the authenticated user's id when available
     let owner = user_id;
     if (!owner) {
@@ -135,6 +141,10 @@ export const getTransactions = async ({ fromDate = null, toDate = null, type = n
     }
 
     const supabase = getSupabase();
+    if (!supabase) {
+      console.warn('Supabase not configured; returning no transactions.');
+      return { data: [], count: 0 };
+    }
     let query = supabase.from('transactions').select('*', { count: 'exact' }).order('transaction_date', { ascending: false }).range(offset, offset + limit - 1);
 
     if (fromDate) query = query.gte('transaction_date', fromDate);
@@ -169,6 +179,7 @@ export const updateTransaction = async (id, updates) => {
     }
 
     const supabase = getSupabase();
+    if (!supabase) throw new Error('Supabase not configured. Cannot update transaction.');
     const { data, error } = await supabase.from('transactions').update(updates).eq('id', id).select().single();
     if (error) throw error;
     return data;
@@ -189,6 +200,7 @@ export const deleteTransaction = async (id) => {
     }
 
     const supabase = getSupabase();
+    if (!supabase) throw new Error('Supabase not configured. Cannot delete transaction.');
     const { error } = await supabase.from('transactions').delete().eq('id', id);
     if (error) throw error;
     return true;
