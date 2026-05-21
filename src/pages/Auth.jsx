@@ -2,7 +2,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { signIn, getCurrentUser, syncLocalToSupabase } from '../utils/supabaseClient';
+import { useAuth } from '../contexts/AuthContext';
+import { syncLocalToSupabase } from '../utils/supabaseClient';
 
 export default function Auth() {
   const [email, setEmail] = useState('');
@@ -14,54 +15,29 @@ export default function Auth() {
   const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
   const supabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 
+  const auth = useAuth();
+
   useEffect(() => {
     // if already authenticated and Supabase is configured, redirect to dashboard
-    (async () => {
-      try {
-        const u = await getCurrentUser();
-        if (u && supabaseConfigured) navigate('/');
-      } catch (e) {}
-    })();
-  }, []);
+    if (auth.user && supabaseConfigured) navigate('/');
+  }, [auth.user, auth.checking]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      // Temporary hardcoded demo login so user can access the app immediately
-      if (email === 'kocakjaya123' && password === 'ursafirst123') {
-        const demoUser = { id: 'local-' + Date.now(), email: 'kocakjaya123', isDemo: true };
-        try { localStorage.setItem('isLoggedIn', 'true'); } catch (e) {}
-        try { localStorage.setItem('user', JSON.stringify({ email: 'kocakjaya123' })); } catch (e) {}
-        // ensure the app's local user key is set and notify listeners
-        try { localStorage.setItem('ff_user', JSON.stringify(demoUser)); } catch (e) {}
-        try { window.dispatchEvent(new CustomEvent('ff:auth', { detail: { event: 'SIGNED_IN', session: { user: demoUser } } })); } catch (e) {}
-        toast.success('Login berhasil!');
-        navigate('/');
-        return;
-      }
-
-      if (!supabaseConfigured) {
-        toast.error('Supabase belum dikonfigurasi. Set VITE_SUPABASE_URL dan VITE_SUPABASE_ANON_KEY di .env');
-        return;
-      }
-
-      await signIn({ email, password });
+      const u = await auth.signin({ email, password });
       toast.success('Login sukses');
-      // redirect to dashboard
-      const user = await getCurrentUser();
-      if (user) {
-        // if logged into a real Supabase account, try to migrate local demo transactions
-        try {
-          if (!user.isDemo) {
-            const res = await syncLocalToSupabase();
-            if (res.inserted > 0) toast.success(`Synced ${res.inserted} transactions to your account`);
-          }
-        } catch (e) {
-          console.warn('Sync local to Supabase failed', e?.message || e);
+      // if this is a real Supabase user, try to migrate local demo transactions
+      try {
+        if (u && !u.isDemo) {
+          const res = await syncLocalToSupabase();
+          if (res.inserted > 0) toast.success(`Synced ${res.inserted} transactions to your account`);
         }
-        navigate('/');
+      } catch (e) {
+        console.warn('Sync local to Supabase failed', e?.message || e);
       }
+      navigate('/');
     } catch (err) {
       console.error(err);
       const msg = (err?.message || '').toString().toLowerCase();

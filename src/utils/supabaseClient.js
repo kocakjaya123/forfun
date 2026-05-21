@@ -11,7 +11,8 @@ if (MISSING_ENV) {
 let _supabase = null;
 if (!MISSING_ENV) {
   try {
-    _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false } });
+    // Use default persistence so sessions survive reloads
+    _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   } catch (e) {
     console.error('Failed to create Supabase client:', e?.message || e);
     _supabase = null;
