@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getTransactions } from '../utils/supabaseClient';
+import { getTransactions, subscribeToTransactions } from '../utils/supabaseClient';
 import { Link } from 'react-router-dom';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
 import toast from 'react-hot-toast';
@@ -16,6 +16,10 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchMonth();
+    const unsub = subscribeToTransactions(() => {
+      fetchMonth();
+    });
+    return () => { try { unsub && unsub(); } catch (e) {} };
   }, []);
 
   const fetchMonth = async () => {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getTransactions, deleteTransaction, DEFAULT_CATEGORIES } from '../utils/supabaseClient';
+import { getTransactions, deleteTransaction, DEFAULT_CATEGORIES, subscribeToTransactions } from '../utils/supabaseClient';
 import toast from 'react-hot-toast';
 
 export default function Transactions() {
@@ -10,6 +10,11 @@ export default function Transactions() {
   const [category, setCategory] = useState('all');
 
   useEffect(() => { fetchList(); }, [search, type, category]);
+
+  useEffect(() => {
+    const unsub = subscribeToTransactions(() => fetchList());
+    return () => { try { unsub && unsub(); } catch (e) {} };
+  }, []);
 
   const fetchList = async () => {
     setLoading(true);
