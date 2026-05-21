@@ -51,7 +51,6 @@ export default function Navbar() {
             <button onClick={() => navigate('/add')} className="px-3 py-2 rounded-md text-sm bg-brand-emerald text-black font-semibold hover:scale-105 transition-transform"> <PlusCircle size={16} className="inline mr-2"/> Add</button>
             <button onClick={() => navigate('/reports')} className="px-3 py-2 rounded-md text-sm hover:bg-white/3"> <BarChart2 size={16} className="inline mr-2"/> Reports</button>
             <button onClick={() => navigate('/goals')} className="px-3 py-2 rounded-md text-sm hover:bg-white/3"> <Target size={16} className="inline mr-2"/> Goals</button>
-            <button onClick={() => navigate('/profile')} className="px-3 py-2 rounded-md text-sm hover:bg-white/3"> <User size={16} className="inline mr-2"/> Profile</button>
           </div>
 
           <div className="ml-2 flex items-center gap-2">
