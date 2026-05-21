@@ -10,14 +10,16 @@ export default function Auth() {
   const navigate = useNavigate();
 
   // Demo credentials (provided by user for quick login)
-  const DEMO_CREDENTIALS = { email: 'kocakjaya123', password: 'ursafirst123' };
+  const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+  const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  const supabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 
   useEffect(() => {
-    // if already authenticated, redirect to dashboard
+    // if already authenticated and Supabase is configured, redirect to dashboard
     (async () => {
       try {
         const u = await getCurrentUser();
-        if (u) navigate('/');
+        if (u && supabaseConfigured) navigate('/');
       } catch (e) {}
     })();
   }, []);
@@ -26,6 +28,11 @@ export default function Auth() {
     e.preventDefault();
     setLoading(true);
     try {
+      if (!supabaseConfigured) {
+        toast.error('Supabase belum dikonfigurasi. Set VITE_SUPABASE_URL dan VITE_SUPABASE_ANON_KEY di .env');
+        return;
+      }
+
       await signIn({ email, password });
       toast.success('Login sukses');
       // redirect to dashboard
@@ -50,12 +57,7 @@ export default function Auth() {
     }
   };
 
-  // Fill demo credentials into the form (DO NOT auto-submit)
-  const handleFillDemo = () => {
-    setEmail(DEMO_CREDENTIALS.email);
-    setPassword(DEMO_CREDENTIALS.password);
-    toast('Demo credentials filled — click Sign In to proceed');
-  };
+  // no demo helpers — keep login clean
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
