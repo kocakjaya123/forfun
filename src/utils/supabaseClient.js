@@ -4,269 +4,108 @@ const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  console.error('Missing Supabase environment variables. Please check .env.local');
+  console.error('Missing Supabase environment variables. Please check .env');
 }
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: { persistSession: false }
+});
 
-// ===== USER FUNCTIONS =====
-export const createUser = async (playerName) => {
+// TRANSACTIONS CRUD
+export const addTransaction = async ({ user_id = null, type, amount, category, description = '', transaction_date }) => {
   try {
-    const { data, error } = await supabase
-      .from('users')
-      .insert([
-        {
-          player_name: playerName,
-          created_at: new Date().toISOString()
-        }
-      ])
-      .select();
-
-    if (error) throw error;
-    console.log('User created successfully:', data);
-    return data[0];
-  } catch (error) {
-    console.error('Error creating user:', error);
-    return null;
-  }
-};
-
-export const getUserByName = async (playerName) => {
-  try {
-    const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('player_name', playerName)
-      .single();
-
-    if (error && error.code !== 'PGRST116') throw error;
-    return data || null;
-  } catch (error) {
-    console.error('Error fetching user:', error);
-    return null;
-  }
-};
-
-export const getAllUsers = async () => {
-  try {
-    const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .order('created_at', { ascending: false });
-
+    const payload = {
+      user_id,
+      type,
+      amount,
+      category,
+      description,
+      transaction_date,
+      created_at: new Date().toISOString()
+    };
+    const { data, error } = await supabase.from('transactions').insert([payload]).select().single();
     if (error) throw error;
     return data;
-  } catch (error) {
-    console.error('Error fetching users:', error);
-    return [];
+  } catch (err) {
+    console.error('addTransaction error', err);
+    throw err;
   }
 };
 
-// ===== VISITOR TRACKING =====
-export const trackVisitor = async (visitorName = 'guest') => {
+export const getTransactions = async ({ fromDate = null, toDate = null, type = null, category = null, search = null, limit = 100, offset = 0 } = {}) => {
   try {
-    const geoData = await getClientGeoLocation();
-    const { data, error } = await supabase
-      .from('visitors')
-      .insert([
-        {
-          visitor_name: visitorName,
-          ip_address: geoData.ip,
-          city: geoData.city,
-          country: geoData.country,
-          user_agent: navigator.userAgent,
-          visited_at: new Date().toISOString()
-        }
-      ]);
+    let query = supabase.from('transactions').select('*').order('transaction_date', { ascending: false }).range(offset, offset + limit - 1);
 
+    if (fromDate) query = query.gte('transaction_date', fromDate);
+    if (toDate) query = query.lte('transaction_date', toDate);
+    if (type) query = query.eq('type', type);
+    if (category) query = query.eq('category', category);
+    if (search) query = query.ilike('description', `%${search}%`);
+
+    const { data, error, count } = await query;
     if (error) throw error;
-    console.log('Visitor tracked:', visitorName, 'from', geoData.city, geoData.country);
-    return data;
-  } catch (error) {
-    console.error('Error tracking visitor:', error);
-    return null;
-  }
-};
-
-/**
- * Fetch visitors with pagination.
- * @param {number} page 1-based page number
- * @param {number} perPage items per page
- * @returns {Promise<{data: Array, count: number}>}
- */
-export const getVisitorStats = async (page = 1, perPage = 50) => {
-  try {
-    const from = (page - 1) * perPage;
-    const to = from + perPage - 1;
-
-    const { data, error, count } = await supabase
-      .from('visitors')
-      .select('id, visitor_name, city, country, visited_at', { count: 'exact' })
-      .order('visited_at', { ascending: false })
-      .range(from, to);
-
-    if (error) throw error;
-    return { data: data || [], count: count || 0 };
-  } catch (error) {
-    console.error('Error fetching visitor stats:', error);
+    return { data: data || [], count };
+  } catch (err) {
+    console.error('getTransactions error', err);
     return { data: [], count: 0 };
   }
 };
 
-/**
- * Fetch overall visitor meta: total visits, unique visitors (by name), and today's visits.
- */
-export const getVisitorMeta = async () => {
+export const updateTransaction = async (id, updates) => {
   try {
-    // total visits (count only)
-    const { count: totalCount, error: errTotal } = await supabase
-      .from('visitors')
-      .select('id', { count: 'exact', head: true });
-    if (errTotal) throw errTotal;
-
-    // unique visitors by name
-    // PostgREST/supabase-js does not expose a .distinct() helper on the client chain.
-    // Fallback: fetch visitor_name rows (limited) and compute unique count client-side.
-    const { data: nameRows, error: errNames } = await supabase
-      .from('visitors')
-      .select('visitor_name')
-      .order('visitor_name', { ascending: true })
-      .range(0, 9999); // limit to first 10k rows to avoid huge transfers
-    if (errNames) throw errNames;
-    const uniqueCount = nameRows ? new Set(nameRows.map((r) => r.visitor_name)).size : 0;
-
-    // today's visits
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const todayISO = today.toISOString();
-    const { count: todayCount, error: errToday } = await supabase
-      .from('visitors')
-      .select('id', { count: 'exact', head: true })
-      .gte('visited_at', todayISO);
-    if (errToday) throw errToday;
-
-    return { totalCount: totalCount || 0, uniqueCount, todayCount: todayCount || 0 };
-  } catch (error) {
-    console.error('Error fetching visitor meta:', error);
-    return { totalCount: 0, uniqueCount: 0, todayCount: 0 };
+    const { data, error } = await supabase.from('transactions').update(updates).eq('id', id).select().single();
+    if (error) throw error;
+    return data;
+  } catch (err) {
+    console.error('updateTransaction error', err);
+    throw err;
   }
 };
 
-// Clear all visitor records (reset to 0)
-export const clearAllVisitors = async () => {
+export const deleteTransaction = async (id) => {
   try {
-    const { error } = await supabase
-      .from('visitors')
-      .delete()
-      .neq('id', 0); // Delete all records (neq 0 means "not equal to 0" - matches all since id always > 0)
-
+    const { error } = await supabase.from('transactions').delete().eq('id', id);
     if (error) throw error;
-    console.log('✅ All visitor records cleared successfully!');
     return true;
-  } catch (error) {
-    console.error('❌ Error clearing visitor records:', error);
+  } catch (err) {
+    console.error('deleteTransaction error', err);
     return false;
   }
 };
 
-// Helper untuk get IP dan Geolocation (kota, negara)
-const getClientGeoLocation = async () => {
+// Summary helpers
+export const getMonthlySummary = async (year, month) => {
   try {
-    const response = await fetch('https://ipapi.co/json/');
-    const data = await response.json();
-    return {
-      ip: data.ip || 'unknown',
-      city: data.city || 'Unknown',
-      country: data.country_name || 'Unknown'
-    };
-  } catch {
-    return {
-      ip: 'unknown',
-      city: 'Unknown',
-      country: 'Unknown'
-    };
-  }
-};
+    const from = `${year}-${String(month).padStart(2, '0')}-01`;
+    const toDate = new Date(year, month, 0).toISOString().slice(0, 10);
 
-// Helper untuk get IP (optional)
-const getClientIp = async () => {
-  try {
-    const response = await fetch('https://api.ipify.org?format=json');
-    const data = await response.json();
-    return data.ip;
-  } catch {
-    return 'unknown';
-  }
-};
-
-// ===== QUIZ RESULTS FUNCTIONS =====
-export const saveQuizResult = async (playerName, gameType, score, totalCorrect, allAnswers, duration) => {
-  try {
-    const { data, error } = await supabase
-      .from('quiz_results')
-      .insert([
-        {
-          player_name: playerName,
-          game_type: gameType,
-          score: score,
-          total_correct: totalCorrect,
-          total_questions: allAnswers.length,
-          duration: duration,
-          answers_detail: allAnswers || [],
-          created_at: new Date().toISOString()
-        }
-      ]);
-
-    if (error) throw error;
-    console.log('Quiz result saved successfully:', data);
-    return data;
-  } catch (error) {
-    console.error('Error saving quiz result:', error);
-    return null;
-  }
-};
-
-export const getQuizResults = async () => {
-  try {
-    const { data, error } = await supabase
-      .from('quiz_results')
-      .select('*')
-      .order('created_at', { ascending: false });
-
+    const { data, error } = await supabase.rpc('get_monthly_summary', { p_from: from, p_to: toDate });
     if (error) throw error;
     return data;
-  } catch (error) {
-    console.error('Error fetching quiz results:', error);
-    return [];
+  } catch (err) {
+    console.warn('getMonthlySummary rpc not available, falling back to client aggregation', err.message || err);
+    // Fallback: fetch raw transactions and compute client-side
+    const { data } = await getTransactions({ fromDate: from, toDate: toDate, limit: 1000 });
+    const incomes = (data || []).filter((t) => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0);
+    const expenses = (data || []).filter((t) => t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0);
+    return { incomes, expenses, transactions: data || [] };
   }
 };
 
-export const getPlayerResults = async (playerName) => {
-  try {
-    const { data, error } = await supabase
-      .from('quiz_results')
-      .select('*')
-      .eq('player_name', playerName)
-      .order('created_at', { ascending: false });
+// Realtime subscription helper
+export const subscribeToTransactions = (callback) => {
+  const channel = supabase.channel('public:transactions').on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' }, (payload) => {
+    callback(payload);
+  }).subscribe();
 
-    if (error) throw error;
-    return data;
-  } catch (error) {
-    console.error('Error fetching player results:', error);
-    return [];
-  }
+  return () => supabase.removeChannel(channel);
 };
 
-export const getLeaderboard = async (limit = 50) => {
-  try {
-    const { data, error } = await supabase
-      .rpc('get_leaderboard', { limit_count: limit });
-
-    if (error) throw error;
-    return data;
-  } catch (error) {
-    console.error('Error fetching leaderboard:', error);
-    return [];
-  }
+// Basic categories list (defaults) — can be extended to persist in DB
+export const DEFAULT_CATEGORIES = {
+  income: ['Gaji', 'Freelance', 'Investasi', 'Bonus', 'Lainnya'],
+  expense: ['Makanan', 'Transport', 'Tagihan', 'Belanja', 'Hiburan', 'Kesehatan', 'Lainnya']
 };
+
+export default supabase;
 

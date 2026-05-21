@@ -1,226 +1,71 @@
-"# 🚀 LifeQuest - Platform Permainan Kata-Kata Kehidupan & Impian
+## FinanceFlow — Personal Finance Tracker
 
-Selamat datang di **LifeQuest** - tempat mengeksplorasi impian, masa depan, dan pertumbuhan diri dengan tema serius dan inspiratif! 💪🎯🌟
+FinanceFlow adalah aplikasi web untuk mengelola keuangan pribadi: input pemasukan, pengeluaran, visualisasi, laporan bulanan, dan target tabungan.
 
-## 🌈 Fitur Utama
+Fitur utama:
+- Dashboard dengan total balance, income & expense bulan ini, dan charts
+- Tambah transaksi (Income / Expense) dengan kategori, tanggal, dan catatan
+- Daftar transaksi lengkap dengan pencarian, filter, dan penghapusan
+- Manage kategori (lokal, tersimpan di browser)
+- Laporan bulanan dan chart (pie & trend)
+- Goals / Savings tracking
+- Profile & settings (nama, currency)
 
-- **Tebak Kata Impian** - Main tebak-tebakan kata seputar aspirasi dan motivasi dengan petunjuk yang bertahap
-- **Sistem Hint Bertingkat** - 3 hint utama + 3 hint bonus (dengan easter egg yang motivatif!)
-- **Timer Countdown** - Pilih durasi (1/2/3 menit) dan berlomba melawan waktu
-- **Sistem Poin Dinamis** - Semakin sedikit hint, semakin banyak poin!
-- **Easter Egg Spesial** - Jawab benar 5 kali berturut-turut dan lihat hujan bintang! ⭐
-- **Pesan Motivasi Akhir** - Hasil game dengan pesan khusus sesuai skor kamu
-- **Modal "Traktir Septian"** - Lucu dan interaktif untuk unlock hint tambahan
+Tech stack:
+- React 18 + Vite
+- Tailwind CSS
+- React Router v7
+- Supabase (Postgres) via `@supabase/supabase-js`
+- Recharts, date-fns, lucide-react, react-hot-toast, canvas-confetti
 
-## 🛠️ Tech Stack
-
-- **React 18** - UI Framework modern
-- **Vite** - Bundler super cepat
-- **Tailwind CSS** - Styling dengan utility-first approach
-- **React Router v7** - Navigasi antar halaman
-- **JavaScript ES6+** - Pure vanilla, no bloat!
-
-## 📁 Struktur Project
-
-```
-src/
-├── components/
-│   ├── Navbar.jsx          # Navigation bar dengan branding
-│   ├── GameCard.jsx        # Card untuk setiap game
-│   └── TraktirModal.jsx    # Modal easter egg "traktir Septian"
-├── pages/
-│   ├── Home.jsx            # Halaman utama dengan daftar game
-│   └── games/
-│       └── WordGuess.jsx   # Game tebak kata utama
-├── data/
-│   └── words.js            # Database 20 kata dengan hints
-├── utils/
-│   └── gameUtils.js        # Utility functions (scoring, helpers)
-├── App.jsx                 # Main app router
-├── main.jsx                # Entry point React
-├── index.css               # Tailwind + custom styles
-└── index.html              # HTML template
-
-```
-
-## 🚀 Cara Menjalankan
-
-### Prerequisites
-- Node.js 16+ dan npm/yarn
-
-### Installation
+Quick start
+1. Install dependencies:
 
 ```bash
-# Clone atau buka folder project
-cd forfun
-
-# Install dependencies
 npm install
+```
 
-# Jalankan dev server
+2. Copy environment variables (see `.env.example`) and fill your Supabase URL and anon key.
+
+3. Run dev server:
+
+```bash
 npm run dev
-
-# Buka di browser
-# http://localhost:5173
 ```
 
-### Build untuk Production
+Database (Supabase)
+- Saya menambahkan tabel `transactions` di `SUPABASE_SCHEMA.sql`. Jalankan SQL tersebut di Supabase SQL editor.
+- Contoh schema:
 
-```bash
-npm run build
-
-# Preview build
-npm run preview
-
-# Deploy ke Vercel
-# 1. Push ke GitHub
-# 2. Connect di Vercel dashboard
-# 3. Auto deploy setiap push ke main
+```sql
+CREATE TABLE transactions (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id TEXT,
+  type TEXT CHECK (type IN ('income', 'expense')) NOT NULL,
+  amount DECIMAL(12,2) NOT NULL,
+  category TEXT NOT NULL,
+  description TEXT,
+  transaction_date DATE NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
 ```
 
-## 🎮 Cara Bermain
+Env vars (example in `.env.example`):
 
-### Setup
-1. Klik "Main Sekarang" di kartu game
-2. Pilih durasi timer (1/2/3 menit)
-3. Klik "Mulai Game!"
-
-### Gameplay
-1. Baca deskripsi/petunjuk untuk menemukan kata
-2. Ketik jawaban dan tekan Enter atau klik "Jawab"
-3. Gunakan tombol "Hint" jika butuh bantuan (3 hint + bonus)
-4. Lanjut ke soal berikutnya setelah menjawab
-5. Game selesai saat timer habis
-
-### Scoring System
-- **Jawab benar tanpa hint**: 100 poin ⭐
-- **Jawab benar + 1 hint**: 75 poin
-- **Jawab benar + 2 hint**: 50 poin
-- **Jawab benar + 3 hint**: 25 poin
-- **Jawab benar + hint bonus**: 10 poin
-- **Jawab salah**: 0 poin (lanjut soal berikutnya)
-
-### Easter Eggs 🎉
-- **5 Jawaban Benar Berturut-turut** → Hujan hati selama 3 detik! 💕💕💕
-- **Limit Hint Habis** → Muncul modal lucu untuk "traktir Septian makan" → unlock 3 hint bonus
-- **Hasil Akhir** → Pesan romantis berdasarkan total skor
-
-## 📊 Database Kata
-
-20 kata premium seputar cinta dan perasaan, masing-masing dengan:
-- 1 deskripsi utama yang romantis
-- 3 hint bertahap (abstrak → spesifik)
-- 3 hint bonus (lebih konkret)
-
-**Kata-kata**: Rindu, Cemburu, Jatuh cinta, Kangen, Patah hati, Baper, Deg-degan, Sayang, Pelukan, Ciuman, Kenangan, Harapan, Setia, Perhatian, Kesetiaan, Rayuan, Janji, Kebersamaan, Kehilangan, Bahagia
-
-## 🎨 Design & Styling
-
-- **Warna Utama**: Merah muda (#ec4899), Ungu soft (#a855f7), Gold, Putih
-- **Rounded Corners**: Dominan di seluruh UI (border-radius 2xl+)
-- **Animasi**: Hati melayang, bounce hearts, smooth transitions
-- **Font**: Nunito & Poppins (Google Fonts) - playful & modern
-- **Responsive**: Mobile-first design, optimal di semua ukuran layar
-
-## 🔧 Customization
-
-### Menambah Game Baru
-
-1. Buat folder baru di `src/pages/games/`
-2. Buat file `.jsx` untuk game tersebut
-3. Import dan tambahkan route di `App.jsx`
-4. Tambahkan card di `Home.jsx` dengan route baru
-
-### Mengubah Daftar Kata
-
-Edit file `src/data/words.js`:
-```javascript
-{
-  id: 21,
-  word: "YataKata",
-  description: "Deskripsi romantis...",
-  hints: ["Hint 1", "Hint 2", "Hint 3"],
-  bonusHints: ["Bonus 1", "Bonus 2", "Bonus 3"]
-}
+```
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
 ```
 
-### Mengubah Scoring
+Developer notes
+- Supabase client helpers are in `src/utils/supabaseClient.js` (CRUD + realtime helper)
+- Pages live in `src/pages/` (Dashboard, Transactions, AddTransaction, Categories, Reports, Goals, Profile)
+- Components and styles use Tailwind; theme is dark-first and mobile-friendly
 
-Edit file `src/utils/gameUtils.js` - fungsi `calculateScore()`
+Next steps you might want me to do:
+- Integrate authenticated users + RLS per-user transactions
+- Persist categories in Supabase
+- Add edit-transaction UI
+- Add tests and CI
 
-## 📱 Browser Support
-
-- Chrome/Edge (latest)
-- Firefox (latest)
-- Safari (latest)
-- Mobile browsers (iOS Safari, Chrome Android)
-
-## 📦 Dependencies
-
-```json
-{
-  "react": "^18.3.1",
-  "react-dom": "^18.3.1",
-  "react-router-dom": "^7.14.1",
-  "tailwindcss": "^3.4.1",
-  "vite": "^5.4.1"
-}
-```
-
-## 🚀 Deployment
-
-### Vercel (Recommended)
-
-```bash
-# 1. Push ke GitHub
-git add .
-git commit -m "Update FurFun"
-git push
-
-# 2. Di Vercel Dashboard:
-# - Import project dari GitHub
-# - Build command: npm run build
-# - Output dir: dist
-# - Auto-deploy on push
-
-# Hasil: https://your-project.vercel.app
-```
-
-### Alternatif (Netlify)
-
-```bash
-npm run build
-# Drag & drop folder 'dist' ke Netlify
-```
-
-## 💡 Tips & Tricks
-
-- Jawaban tidak case-sensitive (RINDU = rindu = Rindu) ✅
-- Input otomatis fokus untuk UX yang smooth
-- Hover effects di semua button untuk visual feedback
-- Mobile-optimized: touch-friendly buttons dan font sizes
-- Layout responsive: grid auto-adjust di mobile/tablet/desktop
-
-## 🎯 Roadmap Fitur
-
-- [ ] Multiplayer mode (tanding skor)
-- [ ] Leaderboard global
-- [ ] Custom word sets/kategori
-- [ ] Sound effects & background music
-- [ ] Share skor ke social media
-- [ ] Dark mode toggle
-- [ ] More games (rhyme matching, word association, dll)
-
-## 📝 License
-
-Open-source untuk keperluan edukatif dan hiburan. Bebas digunakan dengan menyebutkan credit.
-
-## 💖 Special Notes
-
-Dibuat dengan penuh cinta untuk yang special. Setiap kata di game ini adalah representasi dari perasaan yang dalam dan bermakna. Semoga kamu menikmati setiap momen bermain FurFun dan semakin memahami keindahan dalam setiap kata tentang cinta! ❤️
-
----
-
-**Dibuat oleh Septian** - Made with ❤️ for amazing people
-
-**Selamat bermain!** 🎮💕✨" 
+Enjoy FinanceFlow — mau ubah nama jadi `UangKu`? Saya pilih `FinanceFlow` untuk look & feel modern.

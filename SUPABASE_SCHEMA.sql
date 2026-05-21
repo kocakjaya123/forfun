@@ -26,6 +26,9 @@ CREATE TABLE IF NOT EXISTS visitors (
 CREATE INDEX idx_visitors_name ON visitors(visitor_name);
 CREATE INDEX idx_visitors_visited ON visitors(visited_at DESC);
 
+-- add visitor_type column to distinguish visitor kinds (lifequest / sharing / general)
+ALTER TABLE visitors ADD COLUMN IF NOT EXISTS visitor_type TEXT DEFAULT 'general';
+
 -- 3. CREATE QUIZ_RESULTS TABLE (kalau belum ada)
 CREATE TABLE IF NOT EXISTS quiz_results (
   id BIGSERIAL PRIMARY KEY,
@@ -95,3 +98,78 @@ GROUP BY player_name
 ORDER BY total_score DESC
 LIMIT limit_count;
 $$ LANGUAGE SQL;
+
+-- ===================================
+-- STORIES + COMMENTS TABLES (for Sharing Life Story)
+-- ===================================
+-- Create stories table
+CREATE TABLE IF NOT EXISTS stories (
+  id BIGSERIAL PRIMARY KEY,
+  title TEXT NOT NULL,
+  content TEXT NOT NULL,
+  author_name TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW())
+);
+
+CREATE INDEX IF NOT EXISTS idx_stories_created_at ON stories(created_at DESC);
+
+-- Create comments table for stories
+CREATE TABLE IF NOT EXISTS story_comments (
+  id BIGSERIAL PRIMARY KEY,
+  story_id BIGINT REFERENCES stories(id) ON DELETE CASCADE,
+  author_name TEXT,
+  content TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW())
+);
+
+CREATE INDEX IF NOT EXISTS idx_comments_created_at ON story_comments(created_at DESC);
+
+-- Enable RLS for new tables
+ALTER TABLE stories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE story_comments ENABLE ROW LEVEL SECURITY;
+
+-- Basic policies for MVP: allow public read and insert (adjust for production)
+CREATE POLICY IF NOT EXISTS "Public read stories" ON stories FOR SELECT USING (true);
+CREATE POLICY IF NOT EXISTS "Public insert stories" ON stories FOR INSERT WITH CHECK (true);
+
+CREATE POLICY IF NOT EXISTS "Public read comments" ON story_comments FOR SELECT USING (true);
+CREATE POLICY IF NOT EXISTS "Public insert comments" ON story_comments FOR INSERT WITH CHECK (true);
+
+-- Disallow public update/delete (only DB admin should change)
+CREATE POLICY IF NOT EXISTS "Deny update stories" ON stories FOR UPDATE USING (false) WITH CHECK (false);
+CREATE POLICY IF NOT EXISTS "Deny delete stories" ON stories FOR DELETE USING (false);
+
+CREATE POLICY IF NOT EXISTS "Deny update comments" ON story_comments FOR UPDATE USING (false) WITH CHECK (false);
+CREATE POLICY IF NOT EXISTS "Deny delete comments" ON story_comments FOR DELETE USING (false);
+
+-- Note: For more secure setup, require authenticated inserts and enable moderation flows.
+
+-- ===================================
+-- TRANSACTIONS TABLE (FinanceFlow / UangKu)
+-- ===================================
+
+-- Ensure UUID helper (adjust if your Supabase Postgres has different extensions)
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE TABLE IF NOT EXISTS transactions (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id TEXT,
+  type TEXT CHECK (type IN ('income', 'expense')) NOT NULL,
+  amount DECIMAL(12,2) NOT NULL,
+  category TEXT NOT NULL,
+  description TEXT,
+  transaction_date DATE NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW())
+);
+
+CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions(transaction_date DESC);
+CREATE INDEX IF NOT EXISTS idx_transactions_category ON transactions(category);
+
+-- Enable RLS and create a permissive policy for MVP (restrict later)
+ALTER TABLE transactions ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Public read and insert transactions" ON transactions
+  FOR ALL
+  USING (true)
+  WITH CHECK (true);
+

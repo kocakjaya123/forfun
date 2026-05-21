@@ -1,80 +1,58 @@
-# Setup Supabase untuk Quiz Cinta
+# FinanceFlow — Supabase Setup
 
-## 1. Create Supabase Account
-- Kunjungi https://supabase.com
-- Sign up dengan email Anda
-- Create a new project
+Panduan singkat untuk menyiapkan Supabase agar bekerja dengan FinanceFlow (transactions).
 
-## 2. Create Database Table
+## 1. Buat Project Supabase
+- Kunjungi https://supabase.com dan buat project baru.
 
+## 2. Buat Table `transactions`
 Buka SQL editor di Supabase dan jalankan query berikut:
 
 ```sql
--- Create quiz_results table
-CREATE TABLE quiz_results (
-  id BIGSERIAL PRIMARY KEY,
-  player_name TEXT NOT NULL,
-  score INTEGER NOT NULL,
-  total_correct INTEGER NOT NULL,
-  total_questions INTEGER NOT NULL,
-  duration INTEGER NOT NULL,
-  answers_detail JSONB NOT NULL,
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE TABLE IF NOT EXISTS transactions (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id TEXT,
+  type TEXT CHECK (type IN ('income', 'expense')) NOT NULL,
+  amount DECIMAL(12,2) NOT NULL,
+  category TEXT NOT NULL,
+  description TEXT,
+  transaction_date DATE NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW())
 );
 
--- Create index for faster queries
-CREATE INDEX idx_player_name ON quiz_results(player_name);
-CREATE INDEX idx_created_at ON quiz_results(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions(transaction_date DESC);
+CREATE INDEX IF NOT EXISTS idx_transactions_category ON transactions(category);
 
--- Enable RLS (Row Level Security)
-ALTER TABLE quiz_results ENABLE ROW LEVEL SECURITY;
+ALTER TABLE transactions ENABLE ROW LEVEL SECURITY;
 
--- Create policy for public read/write
-CREATE POLICY "Allow public insert and read" ON quiz_results
+-- Basic permissive policy for MVP (ubah untuk produksi)
+CREATE POLICY "Public read and insert transactions" ON transactions
   FOR ALL
   USING (true)
   WITH CHECK (true);
 ```
 
-## 3. Get API Keys
-- Go to Project Settings → API
+## 3. Ambil API Keys
+- Project Settings → API
 - Copy `Project URL` (SUPABASE_URL)
 - Copy `anon public` key (SUPABASE_ANON_KEY)
 
-## 4. Update supabaseClient.js
-Edit `src/utils/supabaseClient.js` dan ganti:
+## 4. Environment
+Tambahkan nilai ke file `.env` (atau gunakan Secrets di deployment):
 
-```javascript
-const SUPABASE_URL = 'your-actual-project-url';
-const SUPABASE_ANON_KEY = 'your-actual-anon-key';
+```
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
 ```
 
-Dengan nilai yang Anda dapatkan dari langkah 3.
+Saya juga menambahkan `.env.example` ke repo sebagai contoh.
 
-## 5. Data Structure
+## 5. integrasi di kode
+Edit `src/utils/supabaseClient.js` dan isi `VITE_SUPABASE_URL` dan `VITE_SUPABASE_ANON_KEY` sesuai langkah 3.
 
-Setiap quiz result akan disimpan dengan struktur:
-```json
-{
-  "player_name": "Nama Pemain",
-  "score": 200,
-  "total_correct": 4,
-  "total_questions": 6,
-  "duration": 60,
-  "answers_detail": [
-    {
-      "questionId": 1,
-      "question": "...",
-      "selectedAnswerIndex": 0,
-      "selectedAnswerText": "...",
-      "correctAnswerIndex": 1,
-      "correctAnswerText": "...",
-      "isCorrect": false
-    }
-  ],
-  "created_at": "2024-04-15T10:30:00Z"
-}
-```
+## 6. Testing
+- Jalankan app secara lokal, tambahkan transaksi melalui UI dan cek tabel `transactions` di Supabase.
 
-## Testing
-Setelah setup, buka quiz dan selesaikan 1 soal. Check di Supabase → quiz_results table untuk memastikan data tersimpan.
+Catatan: Untuk produksi, aktifkan autentikasi dan kebijakan RLS yang ketat (hanya user dapat mengakses transaksinya sendiri).

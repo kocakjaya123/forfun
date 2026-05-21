@@ -1,4 +1,5 @@
 export default {
+  darkMode: 'class',
   content: [
     "./index.html",
     "./src/**/*.{js,jsx}",
@@ -6,36 +7,31 @@ export default {
   theme: {
     extend: {
       colors: {
-        pink: {
-          50: '#fdf2f8',
-          100: '#fce7f3',
-          200: '#fbcfe8',
-          300: '#f8b4d4',
-          400: '#f472b6',
-          500: '#ec4899',
-          600: '#db2777',
-          700: '#be185d',
-          800: '#9d174d',
-          900: '#831843',
+        brand: {
+          emerald: '#10b981',
+          emeraldDark: '#047857',
+          accent: '#f59e0b',
+          bg: '#0f172a',
+          muted: '#94a3b8'
         },
+        income: '#10b981',
+        expense: '#ef4444'
       },
       fontFamily: {
-        sans: ['Nunito', 'Poppins', 'sans-serif'],
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       animation: {
-        'float-heart': 'float-heart 3s ease-in-out infinite',
-        'party-hearts': 'party-hearts 3s ease-out forwards',
+        'float': 'float 3s ease-in-out infinite',
       },
       keyframes: {
-        'float-heart': {
+        'float': {
           '0%, 100%': { transform: 'translateY(0px)', opacity: '1' },
-          '50%': { transform: 'translateY(-20px)', opacity: '0.8' },
-        },
-        'party-hearts': {
-          '0%': { transform: 'translate(0, 0) scale(1)', opacity: '1' },
-          '100%': { transform: 'translate(var(--tx), -500px) scale(0)', opacity: '0' },
+          '50%': { transform: 'translateY(-8px)', opacity: '0.95' },
         },
       },
+      boxShadow: {
+        soft: '0 6px 18px rgba(2,6,23,0.25)'
+      }
     },
   },
   plugins: [],
