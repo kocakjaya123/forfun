@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { addTransaction, DEFAULT_CATEGORIES } from '../utils/supabaseClient';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import CustomSelect from '../components/CustomSelect';
 
 export default function AddTransaction() {
   const navigate = useNavigate();
@@ -49,10 +50,10 @@ export default function AddTransaction() {
 
         <div>
           <label className="block text-sm text-gray-300 mb-1">Category</label>
-          <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full p-3 rounded bg-white/5">
+          <CustomSelect value={category} onChange={(e) => setCategory(e.target.value)}>
             <option value="">-- Pilih kategori --</option>
             {categories.map(c => <option key={c} value={c}>{c}</option>)}
-          </select>
+          </CustomSelect>
         </div>
 
         <div>

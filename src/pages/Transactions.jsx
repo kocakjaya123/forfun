@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getTransactions, deleteTransaction, DEFAULT_CATEGORIES, subscribeToTransactions } from '../utils/supabaseClient';
+import CustomSelect from '../components/CustomSelect';
 import toast from 'react-hot-toast';
 import { formatRupiah } from '../utils/format';
 
@@ -51,15 +52,19 @@ export default function Transactions() {
         <h2 className="text-2xl font-bold">Transactions</h2>
         <div className="flex items-center gap-2">
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Cari..." className="p-2 rounded bg-white/5" />
-          <select value={type} onChange={e => setType(e.target.value)} className="p-2 rounded bg-white/5">
-            <option value="all">All</option>
-            <option value="income">Income</option>
-            <option value="expense">Expense</option>
-          </select>
-          <select value={category} onChange={e => setCategory(e.target.value)} className="p-2 rounded bg-white/5">
-            <option value="all">All categories</option>
-            {categories.map(c => <option key={c} value={c}>{c}</option>)}
-          </select>
+          <div className="w-36">
+            <CustomSelect value={type} onChange={e => setType(e.target.value)} className="p-2">
+              <option value="all">All</option>
+              <option value="income">Income</option>
+              <option value="expense">Expense</option>
+            </CustomSelect>
+          </div>
+          <div className="w-48">
+            <CustomSelect value={category} onChange={e => setCategory(e.target.value)} className="p-2">
+              <option value="all">All categories</option>
+              {categories.map(c => <option key={c} value={c}>{c}</option>)}
+            </CustomSelect>
+          </div>
         </div>
       </div>
 

@@ -5,6 +5,8 @@ import { formatRupiah } from '../utils/format';
 
 const COLORS = ['#f59e0b', '#10b981', '#ef4444', '#60a5fa', '#a78bfa', '#f97316'];
 
+import CustomSelect from '../components/CustomSelect';
+
 export default function Reports() {
   const [year, setYear] = useState(new Date().getFullYear());
   const [month, setMonth] = useState(new Date().getMonth() + 1);
@@ -43,9 +45,9 @@ export default function Reports() {
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-2xl font-bold">Reports</h2>
         <div className="flex items-center gap-2">
-          <select value={month} onChange={e=>setMonth(Number(e.target.value))} className="p-2 rounded bg-white/5">
+          <CustomSelect value={month} onChange={e=>setMonth(Number(e.target.value))} className="p-2 w-24">
             {Array.from({length:12}).map((_,i)=> <option key={i+1} value={i+1}>{i+1}</option>)}
-          </select>
+          </CustomSelect>
           <input type="number" value={year} onChange={e=>setYear(Number(e.target.value))} className="p-2 rounded bg-white/5 w-24" />
         </div>
       </div>

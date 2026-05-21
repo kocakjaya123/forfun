@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import CustomSelect from '../components/CustomSelect';
 
 export default function Profile() {
   const [name, setName] = useState('');
@@ -27,11 +28,11 @@ export default function Profile() {
         </div>
         <div>
           <label className="text-sm text-gray-400">Currency</label>
-          <select value={currency} onChange={e=>setCurrency(e.target.value)} className="w-full p-2 rounded bg-white/5">
+          <CustomSelect value={currency} onChange={e=>setCurrency(e.target.value)} className="w-full p-2">
             <option value="IDR">IDR</option>
             <option value="USD">USD</option>
             <option value="EUR">EUR</option>
-          </select>
+          </CustomSelect>
         </div>
         <div>
           <button onClick={save} className="px-4 py-2 bg-brand-emerald rounded">Save</button>
