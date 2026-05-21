@@ -240,13 +240,19 @@ export const signUp = async ({ email, password }) => {
 };
 
 export const signIn = async ({ email, password }) => {
-  if (!_supabase) {
-    throw new Error('Supabase is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env.');
+  // If Supabase is configured, use real auth
+  if (_supabase) {
+    const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    return data;
   }
 
-  const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
-  if (error) throw error;
-  return data;
+  // Local/demo fallback: allow signing in locally when Supabase env is missing.
+  // This creates a local user persisted in localStorage and enables the app to run offline.
+  if (!email) throw new Error('Email/username required for local mode');
+  const user = { id: genId(), email, isDemo: true };
+  setLocalUser(user);
+  return { user };
 };
 
 export const signOut = async () => {
