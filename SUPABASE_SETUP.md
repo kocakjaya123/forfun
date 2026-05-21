@@ -1,6 +1,6 @@
-# FinanceFlow — Supabase Setup
+# UangKu — Supabase Setup
 
-Panduan singkat untuk menyiapkan Supabase agar bekerja dengan FinanceFlow (transactions).
+Panduan singkat untuk menyiapkan Supabase agar bekerja dengan UangKu (transactions).
 
 ## 1. Buat Project Supabase
 - Kunjungi https://supabase.com dan buat project baru.

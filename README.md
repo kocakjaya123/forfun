@@ -1,6 +1,6 @@
-## FinanceFlow — Personal Finance Tracker
+## UangKu — Personal Finance Tracker
 
-FinanceFlow adalah aplikasi web untuk mengelola keuangan pribadi: input pemasukan, pengeluaran, visualisasi, laporan bulanan, dan target tabungan.
+UangKu adalah aplikasi web untuk mengelola keuangan pribadi: input pemasukan, pengeluaran, visualisasi, laporan bulanan, dan target tabungan.
 
 Fitur utama:
 - Dashboard dengan total balance, income & expense bulan ini, dan charts
@@ -68,4 +68,4 @@ Next steps you might want me to do:
 - Add edit-transaction UI
 - Add tests and CI
 
-Enjoy FinanceFlow — mau ubah nama jadi `UangKu`? Saya pilih `FinanceFlow` untuk look & feel modern.
+Enjoy UangKu — aplikasi ini sekarang bernama `UangKu`.

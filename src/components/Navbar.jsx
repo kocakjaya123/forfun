@@ -40,7 +40,7 @@ export default function Navbar() {
         <div className="flex items-center gap-4">
           <Link to="/" className="flex items-center gap-3">
             <span className="text-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 p-2 rounded-lg shadow-md">💰</span>
-            <span className="text-lg font-extrabold">FinanceFlow</span>
+            <span className="text-lg font-extrabold">UangKu</span>
           </Link>
 
           <div className="flex-1" />

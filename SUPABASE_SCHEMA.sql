@@ -1,9 +1,4 @@
--- ===================================
--- SUPABASE SCHEMA FOR FINANCEFLOW
--- Only essential objects for transactions + RLS
--- ===================================
-
--- Ensure UUID helper is available
+-- SUPABASE SCHEMA FOR UANGKU
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Transactions table: each row owned by an authenticated user (auth.users)
