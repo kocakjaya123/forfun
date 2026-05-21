@@ -27,7 +27,7 @@ ALTER TABLE transactions ENABLE ROW LEVEL SECURITY;
 -- Allow authenticated users to INSERT only when they set user_id = auth.uid()
 CREATE POLICY "Users can insert their own transactions" ON transactions
   FOR INSERT
-  WITH CHECK (auth.uid()::uuid = new.user_id);
+  WITH CHECK (auth.uid()::uuid = user_id);
 
 -- Allow authenticated users to SELECT only their own transactions
 CREATE POLICY "Users can select their own transactions" ON transactions
@@ -38,7 +38,7 @@ CREATE POLICY "Users can select their own transactions" ON transactions
 CREATE POLICY "Users can update their own transactions" ON transactions
   FOR UPDATE
   USING (auth.uid()::uuid = user_id)
-  WITH CHECK (auth.uid()::uuid = new.user_id);
+  WITH CHECK (auth.uid()::uuid = user_id);
 
 -- Allow authenticated users to DELETE only their own transactions
 CREATE POLICY "Users can delete their own transactions" ON transactions
