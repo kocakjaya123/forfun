@@ -14,8 +14,19 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 // TRANSACTIONS CRUD
 export const addTransaction = async ({ user_id = null, type, amount, category, description = '', transaction_date }) => {
   try {
+    // ensure we attach the authenticated user's id when available
+    let owner = user_id;
+    if (!owner) {
+      try {
+        const { data: userData } = await supabase.auth.getUser();
+        owner = userData?.user?.id || null;
+      } catch (e) {
+        // ignore - will rely on DB default if configured
+      }
+    }
+
     const payload = {
-      user_id,
+      user_id: owner,
       type,
       amount,
       category,
@@ -105,6 +116,38 @@ export const subscribeToTransactions = (callback) => {
 export const DEFAULT_CATEGORIES = {
   income: ['Gaji', 'Freelance', 'Investasi', 'Bonus', 'Lainnya'],
   expense: ['Makanan', 'Transport', 'Tagihan', 'Belanja', 'Hiburan', 'Kesehatan', 'Lainnya']
+};
+
+// ===== AUTH HELPERS =====
+export const signUp = async ({ email, password }) => {
+  const { data, error } = await supabase.auth.signUp({ email, password });
+  if (error) throw error;
+  return data;
+};
+
+export const signIn = async ({ email, password }) => {
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) throw error;
+  return data;
+};
+
+export const signOut = async () => {
+  const { error } = await supabase.auth.signOut();
+  if (error) throw error;
+  return true;
+};
+
+export const getCurrentUser = async () => {
+  const { data, error } = await supabase.auth.getUser();
+  if (error) throw error;
+  return data?.user || null;
+};
+
+export const onAuthStateChange = (cb) => {
+  const { data: subscription } = supabase.auth.onAuthStateChange((event, session) => {
+    try { cb(event, session); } catch (e) { console.error(e); }
+  });
+  return subscription;
 };
 
 export default supabase;

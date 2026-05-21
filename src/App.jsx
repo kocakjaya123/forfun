@@ -7,6 +7,7 @@ import Categories from './pages/Categories';
 import Reports from './pages/Reports';
 import Goals from './pages/Goals';
 import Profile from './pages/Profile';
+import Auth from './pages/Auth';
 import './index.css';
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
           <Route path="/reports" element={<Reports />} />
           <Route path="/goals" element={<Goals />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/auth" element={<Auth />} />
         </Routes>
       </main>
     </Router>

@@ -1,15 +1,38 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { PieChart, List, PlusCircle, BarChart2, Target, User, Sun, Moon } from 'lucide-react';
+import { getCurrentUser, signOut, onAuthStateChange } from '../utils/supabaseClient';
 
 export default function Navbar() {
   const navigate = useNavigate();
   const [dark, setDark] = useState(document.documentElement.classList.contains('dark'));
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     if (dark) document.documentElement.classList.add('dark');
     else document.documentElement.classList.remove('dark');
   }, [dark]);
+
+  useEffect(() => {
+    let sub;
+    (async () => {
+      try {
+        const u = await getCurrentUser();
+        setUser(u);
+      } catch (e) {
+        setUser(null);
+      }
+    })();
+
+    sub = onAuthStateChange((event, session) => {
+      if (session?.user) setUser(session.user);
+      else if (event === 'SIGNED_OUT') setUser(null);
+    });
+
+    return () => {
+      try { sub?.unsubscribe?.(); } catch (e) {}
+    };
+  }, []);
 
   return (
     <nav className="sticky top-0 z-40 bg-transparent border-b border-white/6 backdrop-blur-sm">
@@ -32,6 +55,15 @@ export default function Navbar() {
           </div>
 
           <div className="ml-2 flex items-center gap-2">
+            {user ? (
+              <>
+                <span className="hidden sm:inline text-sm px-2 py-1 bg-white/5 rounded">{user.email}</span>
+                <button onClick={async () => { await signOut(); navigate('/auth'); }} className="px-3 py-2 rounded-md text-sm bg-red-600/40">Sign Out</button>
+              </>
+            ) : (
+              <button onClick={() => navigate('/auth')} className="px-3 py-2 rounded-md text-sm bg-white/5">Sign In</button>
+            )}
+
             <button onClick={() => setDark((d) => !d)} className="p-2 rounded-md hover:bg-white/3">
               {dark ? <Sun size={16} /> : <Moon size={16} />}
             </button>
