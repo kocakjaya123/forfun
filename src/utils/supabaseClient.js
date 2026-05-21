@@ -135,7 +135,7 @@ export const getTransactions = async ({ fromDate = null, toDate = null, type = n
     }
 
     const supabase = getSupabase();
-    let query = supabase.from('transactions').select('*').order('transaction_date', { ascending: false }).range(offset, offset + limit - 1);
+    let query = supabase.from('transactions').select('*', { count: 'exact' }).order('transaction_date', { ascending: false }).range(offset, offset + limit - 1);
 
     if (fromDate) query = query.gte('transaction_date', fromDate);
     if (toDate) query = query.lte('transaction_date', toDate);
@@ -318,6 +318,37 @@ export const onAuthStateChange = (cb) => {
   };
   window.addEventListener('ff:auth', handler);
   return { unsubscribe: () => window.removeEventListener('ff:auth', handler) };
+};
+
+// Sync local demo transactions to Supabase for the currently authenticated Supabase user
+export const syncLocalToSupabase = async () => {
+  const localUser = getLocalUser();
+  if (!localUser) return { inserted: 0 };
+  const txs = readLocalTxns().filter(t => t.user_id === localUser.id);
+  if (!txs.length) return { inserted: 0 };
+  if (!_supabase) throw new Error('Supabase not configured');
+
+  const { data: userData } = await _supabase.auth.getUser();
+  const currentUser = userData?.user;
+  if (!currentUser) throw new Error('No Supabase user session found');
+
+  const payloads = txs.map(t => ({
+    user_id: currentUser.id,
+    type: t.type,
+    amount: t.amount,
+    category: t.category,
+    description: t.description,
+    transaction_date: t.transaction_date,
+    created_at: t.created_at
+  }));
+
+  const { data, error } = await _supabase.from('transactions').insert(payloads).select();
+  if (error) throw error;
+
+  // Clear local demo data after successful sync
+  writeLocalTxns([]);
+  clearLocalUser();
+  return { inserted: (data || []).length, data };
 };
 
 export default _supabase;

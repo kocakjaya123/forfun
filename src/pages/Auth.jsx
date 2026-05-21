@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { signIn, signUp, getCurrentUser } from '../utils/supabaseClient';
+import { signIn, signUp, getCurrentUser, syncLocalToSupabase } from '../utils/supabaseClient';
 
 export default function Auth() {
   const [email, setEmail] = useState('');
@@ -20,7 +20,18 @@ export default function Auth() {
       toast.success('Login sukses');
       // redirect to dashboard
       const user = await getCurrentUser();
-      if (user) navigate('/');
+      if (user) {
+        // if logged into a real Supabase account, try to migrate local demo transactions
+        try {
+          if (!user.isDemo) {
+            const res = await syncLocalToSupabase();
+            if (res.inserted > 0) toast.success(`Synced ${res.inserted} transactions to your account`);
+          }
+        } catch (e) {
+          console.warn('Sync local to Supabase failed', e?.message || e);
+        }
+        navigate('/');
+      }
     } catch (err) {
       console.error(err);
       toast.error(err?.message || 'Auth error');
