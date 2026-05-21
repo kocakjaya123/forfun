@@ -63,6 +63,33 @@ const writeLocalTxns = (txs) => {
 // TRANSACTIONS CRUD
 export const addTransaction = async ({ user_id = null, type, amount, category, description = '', transaction_date }) => {
   try {
+    const supabase = getSupabase();
+    // prefer Supabase when a session user exists
+    if (supabase) {
+      try {
+        const { data: userData } = await supabase.auth.getUser();
+        const sbUser = userData?.user || null;
+        if (sbUser) {
+          const owner = user_id || sbUser.id || null;
+          const payload = {
+            user_id: owner,
+            type,
+            amount,
+            category,
+            description,
+            transaction_date,
+            created_at: new Date().toISOString()
+          };
+          const { data, error } = await supabase.from('transactions').insert([payload]).select().single();
+          if (error) throw error;
+          return data;
+        }
+      } catch (e) {
+        // continue to fallback checks
+      }
+    }
+
+    // local/demo fallback when no Supabase session exists
     const localUser = getLocalUser();
     if (localUser) {
       const id = genId();
@@ -73,33 +100,10 @@ export const addTransaction = async ({ user_id = null, type, amount, category, d
       return payload;
     }
 
-    const supabase = getSupabase();
-    if (!supabase) {
-      throw new Error('Supabase not configured. Cannot add transaction.');
+    if (_supabase && !localUser) {
+      throw new Error('Not authenticated. Sign in to save transactions to Supabase.');
     }
-    // ensure we attach the authenticated user's id when available
-    let owner = user_id;
-    if (!owner) {
-      try {
-        const { data: userData } = await supabase.auth.getUser();
-        owner = userData?.user?.id || null;
-      } catch (e) {
-        // ignore - will rely on DB default if configured
-      }
-    }
-
-    const payload = {
-      user_id: owner,
-      type,
-      amount,
-      category,
-      description,
-      transaction_date,
-      created_at: new Date().toISOString()
-    };
-    const { data, error } = await supabase.from('transactions').insert([payload]).select().single();
-    if (error) throw error;
-    return data;
+    throw new Error('Supabase not configured. Cannot add transaction.');
   } catch (err) {
     console.error('addTransaction error', err);
     // network-friendly message
@@ -113,6 +117,28 @@ export const addTransaction = async ({ user_id = null, type, amount, category, d
 
 export const getTransactions = async ({ fromDate = null, toDate = null, type = null, category = null, search = null, limit = 100, offset = 0 } = {}) => {
   try {
+    const supabase = getSupabase();
+    // Prefer Supabase when a session exists
+    if (supabase) {
+      try {
+        const { data: userData } = await supabase.auth.getUser();
+        const sbUser = userData?.user || null;
+        if (sbUser) {
+          let query = supabase.from('transactions').select('*', { count: 'exact' }).order('transaction_date', { ascending: false }).range(offset, offset + limit - 1);
+          if (fromDate) query = query.gte('transaction_date', fromDate);
+          if (toDate) query = query.lte('transaction_date', toDate);
+          if (type) query = query.eq('type', type);
+          if (category) query = query.eq('category', category);
+          if (search) query = query.ilike('description', `%${search}%`);
+          const { data, error, count } = await query;
+          if (error) throw error;
+          return { data: data || [], count };
+        }
+      } catch (e) {
+        // fall through to local fallback
+      }
+    }
+
     const localUser = getLocalUser();
     if (localUser) {
       let txs = readLocalTxns().filter(t => t.user_id === localUser.id);
@@ -126,22 +152,13 @@ export const getTransactions = async ({ fromDate = null, toDate = null, type = n
       return { data: sliced, count: txs.length };
     }
 
-    const supabase = getSupabase();
     if (!supabase) {
       console.warn('Supabase not configured; returning no transactions.');
       return { data: [], count: 0 };
     }
-    let query = supabase.from('transactions').select('*', { count: 'exact' }).order('transaction_date', { ascending: false }).range(offset, offset + limit - 1);
 
-    if (fromDate) query = query.gte('transaction_date', fromDate);
-    if (toDate) query = query.lte('transaction_date', toDate);
-    if (type) query = query.eq('type', type);
-    if (category) query = query.eq('category', category);
-    if (search) query = query.ilike('description', `%${search}%`);
-
-    const { data, error, count } = await query;
-    if (error) throw error;
-    return { data: data || [], count };
+    // If Supabase is configured but no session, return empty (prompt login from UI)
+    return { data: [], count: 0 };
   } catch (err) {
     console.error('getTransactions error', err);
     const msg = (err?.message || '').toLowerCase();
@@ -154,6 +171,21 @@ export const getTransactions = async ({ fromDate = null, toDate = null, type = n
 
 export const updateTransaction = async (id, updates) => {
   try {
+    const supabase = getSupabase();
+    if (supabase) {
+      try {
+        const { data: userData } = await supabase.auth.getUser();
+        const sbUser = userData?.user || null;
+        if (sbUser) {
+          const { data, error } = await supabase.from('transactions').update(updates).eq('id', id).select().single();
+          if (error) throw error;
+          return data;
+        }
+      } catch (e) {
+        // continue to fallback
+      }
+    }
+
     const localUser = getLocalUser();
     if (localUser) {
       const txs = readLocalTxns();
@@ -164,11 +196,7 @@ export const updateTransaction = async (id, updates) => {
       return txs[idx];
     }
 
-    const supabase = getSupabase();
-    if (!supabase) throw new Error('Supabase not configured. Cannot update transaction.');
-    const { data, error } = await supabase.from('transactions').update(updates).eq('id', id).select().single();
-    if (error) throw error;
-    return data;
+    throw new Error('Supabase not configured or not authenticated. Cannot update transaction.');
   } catch (err) {
     console.error('updateTransaction error', err);
     throw err;
@@ -177,6 +205,21 @@ export const updateTransaction = async (id, updates) => {
 
 export const deleteTransaction = async (id) => {
   try {
+    const supabase = getSupabase();
+    if (supabase) {
+      try {
+        const { data: userData } = await supabase.auth.getUser();
+        const sbUser = userData?.user || null;
+        if (sbUser) {
+          const { error } = await supabase.from('transactions').delete().eq('id', id);
+          if (error) throw error;
+          return true;
+        }
+      } catch (e) {
+        // continue to fallback
+      }
+    }
+
     const localUser = getLocalUser();
     if (localUser) {
       const txs = readLocalTxns();
@@ -185,11 +228,7 @@ export const deleteTransaction = async (id) => {
       return true;
     }
 
-    const supabase = getSupabase();
-    if (!supabase) throw new Error('Supabase not configured. Cannot delete transaction.');
-    const { error } = await supabase.from('transactions').delete().eq('id', id);
-    if (error) throw error;
-    return true;
+    throw new Error('Supabase not configured or not authenticated. Cannot delete transaction.');
   } catch (err) {
     console.error('deleteTransaction error', err);
     return false;

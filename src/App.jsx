@@ -10,6 +10,7 @@ import Auth from './pages/Auth';
 import RequireAuth from './components/RequireAuth';
 import './index.css';
 import FabAdd from './components/FabAdd';
+import MobileBottomNav from './components/MobileBottomNav';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 function AppContent() {
@@ -20,7 +21,7 @@ function AppContent() {
   return (
     <Router>
       {user && <Navbar />}
-      <main className="max-w-6xl mx-auto px-4 py-6">
+      <main className="max-w-6xl mx-auto px-4 py-6 pb-24">
         <Routes key={user ? 'authed' : 'anon'}>
           {!user && <Route path="/auth" element={<Auth />} />}
 
@@ -38,6 +39,7 @@ function AppContent() {
         </Routes>
       </main>
       {user && <FabAdd />}
+      {user && <MobileBottomNav />}
     </Router>
   );
 }
