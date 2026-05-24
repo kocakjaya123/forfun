@@ -16,6 +16,8 @@ function loadData() {
 function saveData(data) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+    // notify other parts of the app in this tab about planner updates
+    try { window.dispatchEvent(new CustomEvent('uangku:planner-updated', { detail: data })) } catch { /* ignore */ }
   } catch {
     // ignore
   }

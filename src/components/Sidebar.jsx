@@ -1,67 +1,127 @@
- 
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Home, List, PieChart, Calendar, BarChart2, Settings, User } from 'lucide-react'
+import { Home, List, PieChart, Calendar, BarChart2, Settings, Menu, X } from 'lucide-react'
+import formatRupiah from '../utils/formatRupiah'
 
-export default function Sidebar() {
+const menuItems = [
+  { icon: Home, label: 'Dashboard', path: '/' },
+  { icon: List, label: 'Transaksi', path: '/transactions' },
+  { icon: PieChart, label: 'Budget', path: '/budget' },
+  { icon: Calendar, label: 'Planner', path: '/daily' },
+  { icon: BarChart2, label: 'Laporan', path: '/reports' },
+  { icon: Settings, label: 'Pengaturan', path: '/settings' },
+]
+
+export default function Sidebar({ currentPath = '/' }) {
+  const [isOpen, setIsOpen] = useState(false)
+  const [balance, setBalance] = useState(null)
+
+  useEffect(() => {
+    const parseNumber = (v) => {
+      const n = Number(String(v || 0).toString().replace(/[^0-9.-]+/g, ''))
+      return Number.isFinite(n) ? n : 0
+    }
+
+    const updateBalance = () => {
+      try {
+        const raw = localStorage.getItem('uangku.dailyPlanner.v1')
+        if (!raw) {
+          setBalance(null)
+          return
+        }
+        const planner = JSON.parse(raw)
+        const income = parseNumber(planner.income)
+        const fixed = parseNumber(planner.fixedExpenses)
+        const savings = parseNumber(planner.savingsGoal)
+        const purchases = (planner.purchases || []).reduce((s, p) => s + parseNumber(p.price), 0)
+        const debtsIOwe = (planner.debtsIOwe || []).reduce((s, d) => s + parseNumber(d.amount), 0)
+        const debtsOwedToMe = (planner.debtsOwedToMe || []).reduce((s, d) => s + parseNumber(d.amount), 0)
+        const available = income - fixed - savings - purchases - debtsIOwe + debtsOwedToMe
+        setBalance(available)
+      } catch {
+        setBalance(null)
+      }
+    }
+
+    updateBalance()
+
+    const onStorage = (e) => {
+      if (!e || e.key === null) {
+        // some browsers send storage events with null key on clear; refresh anyway
+        updateBalance()
+        return
+      }
+      if (e.key === 'uangku.dailyPlanner.v1') updateBalance()
+    }
+    const onCustom = () => updateBalance()
+
+    window.addEventListener('storage', onStorage)
+    window.addEventListener('uangku:planner-updated', onCustom)
+    return () => {
+      window.removeEventListener('storage', onStorage)
+      window.removeEventListener('uangku:planner-updated', onCustom)
+    }
+  }, [])
+
   return (
-    <aside className="hidden md:flex md:flex-col w-72 fixed left-0 top-0 h-screen p-6 glass card-shadow">
-      <div className="mb-8">
-        <Link to="/" className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg accent-gradient flex items-center justify-center text-white font-bold">UQ</div>
-          <div>
-            <div className="text-xl font-bold text-white">UangKu</div>
-            <div className="text-xs text-slate-300">Kelola Keuanganmu</div>
+    <>
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="lg:hidden fixed top-4 right-4 z-50 bg-gray-900 p-3 rounded-2xl text-white"
+      >
+        {isOpen ? <X size={24} /> : <Menu size={24} />}
+      </button>
+
+      {/* Sidebar */}
+      <div className={`fixed lg:static inset-y-0 left-0 z-40 w-72 bg-gray-950 border-r border-gray-800 transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-transform duration-300 ease-in-out`}>
+        <div className="p-6">
+          {/* Logo */}
+          <div className="flex items-center gap-3 mb-10">
+            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center">
+              💰
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-white">UangKu</h1>
+              <p className="text-xs text-gray-500 -mt-1">Kelola dengan Cerdas</p>
+            </div>
           </div>
-        </Link>
+
+          {/* Navigation */}
+          <nav className="space-y-1">
+            {menuItems.map((item) => {
+              const Icon = item.icon
+              const isActive = currentPath === item.path
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all ${isActive ? 'bg-purple-600 text-white' : 'text-gray-400 hover:bg-gray-900 hover:text-white'}`}
+                >
+                  <Icon size={20} />
+                  {item.label}
+                </Link>
+              )
+            })}
+          </nav>
+        </div>
+
+        {/* Footer Sidebar */}
+        <div className="absolute bottom-6 left-6 right-6">
+          <div className="bg-gray-900 rounded-2xl p-4 text-xs">
+            <p className="text-gray-500">Saldo tersedia</p>
+            <p className="text-white font-medium">{balance != null ? formatRupiah(balance) : '—'}</p>
+          </div>
+        </div>
       </div>
 
-      <nav className="flex-1">
-        <ul className="space-y-2">
-          <li>
-            <Link to="/" className="flex items-center gap-3 px-3 py-2 rounded hover:bg-slate-800 transition">
-              <Home className="text-slate-100" />
-              <span className="text-slate-100">Dashboard</span>
-            </Link>
-          </li>
-          <li>
-            <Link to="/transactions" className="flex items-center gap-3 px-3 py-2 rounded hover:bg-slate-800 transition">
-              <List className="text-slate-100" />
-              <span className="text-slate-100">Transaksi</span>
-            </Link>
-          </li>
-          <li>
-            <Link to="/goals" className="flex items-center gap-3 px-3 py-2 rounded hover:bg-slate-800 transition">
-              <PieChart className="text-slate-100" />
-              <span className="text-slate-100">Budget</span>
-            </Link>
-          </li>
-          <li>
-            <Link to="/daily" className="flex items-center gap-3 px-3 py-2 rounded hover:bg-slate-800 transition">
-              <Calendar className="text-slate-100" />
-              <span className="text-slate-100">Planner</span>
-            </Link>
-          </li>
-          <li>
-            <Link to="/reports" className="flex items-center gap-3 px-3 py-2 rounded hover:bg-slate-800 transition">
-              <BarChart2 className="text-slate-100" />
-              <span className="text-slate-100">Laporan</span>
-            </Link>
-          </li>
-          <li>
-            <Link to="/profile" className="flex items-center gap-3 px-3 py-2 rounded hover:bg-slate-800 transition">
-              <Settings className="text-slate-100" />
-              <span className="text-slate-100">Pengaturan</span>
-            </Link>
-          </li>
-        </ul>
-      </nav>
-
-      <div className="mt-6">
-        <Link to="/profile" className="flex items-center gap-3 px-3 py-2 rounded hover:bg-slate-800 transition">
-          <User className="text-slate-100" />
-          <span className="text-slate-100">Profile</span>
-        </Link>
-      </div>
-    </aside>
+      {/* Overlay untuk mobile */}
+      {isOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black/70 z-30"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+    </>
   )
 }
