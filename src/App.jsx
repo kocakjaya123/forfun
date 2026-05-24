@@ -10,6 +10,7 @@ import Reports from './pages/Reports'
 import Goals from './pages/Goals'
 import Categories from './pages/Categories'
 import Profile from './pages/Profile'
+import DailyPlanner from './pages/DailyPlanner'
 
 export default function App(){
   return (
@@ -21,6 +22,7 @@ export default function App(){
           <main className="min-h-screen">
             <Routes>
               <Route path="/" element={<Dashboard/>} />
+              <Route path="/daily" element={<DailyPlanner/>} />
               <Route path="/transactions" element={<Transactions/>} />
               <Route path="/add" element={<AddTransaction/>} />
               <Route path="/reports" element={<Reports/>} />

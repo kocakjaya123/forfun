@@ -1,5 +1,6 @@
 import React from 'react'
-import { Home, List, PlusCircle, BarChart2, Target, User } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { Home, List, PlusCircle, BarChart2, Target, User, Calendar } from 'lucide-react'
 
 export default function Sidebar() {
   return (
@@ -7,14 +8,43 @@ export default function Sidebar() {
       <div className="text-2xl font-bold mb-8 text-emerald-400">UangKu</div>
       <nav className="flex-1">
         <ul className="space-y-3">
-          <li className="flex items-center gap-3 text-slate-200 hover:text-white transition-default cursor-pointer"><Home /> Dashboard</li>
-          <li className="flex items-center gap-3 text-slate-200 hover:text-white transition-default cursor-pointer"><List /> Transactions</li>
-          <li className="flex items-center gap-3 text-slate-200 hover:text-white transition-default cursor-pointer"><PlusCircle /> Add</li>
-          <li className="flex items-center gap-3 text-slate-200 hover:text-white transition-default cursor-pointer"><BarChart2 /> Reports</li>
-          <li className="flex items-center gap-3 text-slate-200 hover:text-white transition-default cursor-pointer"><Target /> Goals</li>
+          <li>
+            <Link to="/" className="flex items-center gap-3 text-slate-200 hover:text-white transition-default">
+              <Home /> Dashboard
+            </Link>
+          </li>
+          <li>
+            <Link to="/daily" className="flex items-center gap-3 text-slate-200 hover:text-white transition-default">
+              <Calendar /> Daily
+            </Link>
+          </li>
+          <li>
+            <Link to="/transactions" className="flex items-center gap-3 text-slate-200 hover:text-white transition-default">
+              <List /> Transactions
+            </Link>
+          </li>
+          <li>
+            <Link to="/add" className="flex items-center gap-3 text-slate-200 hover:text-white transition-default">
+              <PlusCircle /> Add
+            </Link>
+          </li>
+          <li>
+            <Link to="/reports" className="flex items-center gap-3 text-slate-200 hover:text-white transition-default">
+              <BarChart2 /> Reports
+            </Link>
+          </li>
+          <li>
+            <Link to="/goals" className="flex items-center gap-3 text-slate-200 hover:text-white transition-default">
+              <Target /> Goals
+            </Link>
+          </li>
         </ul>
       </nav>
-      <div className="mt-6 flex items-center gap-3 text-slate-300 hover:text-white cursor-pointer"><User /> Profile</div>
+      <div className="mt-6">
+        <Link to="/profile" className="flex items-center gap-3 text-slate-300 hover:text-white transition-default">
+          <User /> Profile
+        </Link>
+      </div>
     </aside>
   )
 }
