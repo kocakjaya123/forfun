@@ -2,153 +2,129 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ==================================================
+   Global design tokens and utility helpers
+   - Consolidated variables
+   - Clear sections and comments for maintainability
+   - Default is dark-theme friendly; system light-mode overrides
+   ================================================== */
+
 :root {
+  /* Primary palette */
   --bg-dark: #0F0F0F;
-  --surface: #111827;
+  --bg-surface: #111827;
+  --text: #e6eef8;
+  --text-muted: #9CA3AF;
   --accent-start: #7C3AED;
   --accent-end: #DB2777;
+
+  /* Brand aliases */
+  --brand-950: #0f1724;
+  --brand-accent: #10b981;
+  --brand-income: #f59e0b;
+
+  /* Borders / shadows */
+  --border: rgba(255,255,255,0.04);
+  --card-shadow: 0 8px 24px rgba(2,6,23,0.6);
+
+  /* Typography */
+  --font-sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: var(--font-sans);
+  --font-mono: ui-monospace, Consolas, monospace;
 }
 
-body {
-  background: var(--bg-dark);
-  color: #e6eef8;
+/* Respect system preference: provide light-mode overrides */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg-dark: #ffffff;
+    --bg-surface: #f8fafc;
+    --text: #0f1724;
+    --text-muted: #6b7280;
+    --border: #e5e7eb;
+    --card-shadow: 0 8px 24px rgba(15,23,42,0.06);
+  }
 }
 
-.glass {
-  background: linear-gradient(135deg, rgba(124,58,237,0.06), rgba(219,39,119,0.04));
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,255,255,0.04);
-}
-
-.accent-gradient {
-  background-image: linear-gradient(90deg, var(--accent-start), var(--accent-end));
-}
-
-.card-shadow {
-  box-shadow: 0 8px 24px rgba(2,6,23,0.6);
-}
-
-:root {
-  --bg: #0f1724;
-}
+/* --------------------
+   Base layout + typography
+   -------------------- */
 
 html, body, #root {
   height: 100%;
-}
-
-/* Smooth animations */
-.transition-default {
-  transition: all 200ms ease;
-}
-:root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
-
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
-
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
+  margin: 0;
+  font-family: var(--font-sans);
   color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
+  background: var(--bg-dark);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
-}
-
-body {
-  margin: 0;
+  text-rendering: optimizeLegibility;
+  line-height: 1.45;
+  box-sizing: border-box;
 }
 
 #root {
   width: 1126px;
   max-width: 100%;
   margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
   display: flex;
   flex-direction: column;
-  box-sizing: border-box;
+  text-align: left;
+  border-inline: 1px solid var(--border);
+  min-height: 100svh;
 }
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
-}
-
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
-p {
+h1, h2, h3 {
+  font-family: var(--font-heading);
+  color: var(--text);
   margin: 0;
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+h1 { font-size: 56px; font-weight: 600; }
+h2 { font-size: 24px; font-weight: 600; }
+
+@media (max-width: 1024px) {
+  h1 { font-size: 36px; }
+  html { font-size: 16px; }
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
+p { margin: 0; }
+
+code, .counter {
+  font-family: var(--font-mono);
+  display: inline-flex;
+  border-radius: 4px;
+  color: var(--text);
+  background: rgba(0,0,0,0.04);
   padding: 4px 8px;
-  background: var(--code-bg);
 }
+
+/* --------------------
+   Reusable utility helpers (non-Tailwind)
+   Keep these small and well-documented
+   -------------------- */
+
+.glass {
+  background: linear-gradient(135deg, rgba(124,58,237,0.06), rgba(219,39,119,0.04));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+}
+
+.accent-gradient {
+  background-image: linear-gradient(90deg, var(--accent-start), var(--accent-end));
+}
+
+.card-shadow { box-shadow: var(--card-shadow); }
+
+.transition-default { transition: all 200ms ease; }
+
+/* Accessibility helper */
+.sr-only {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* End of file - global styles are intentionally small because
+   component-level styling is handled by Tailwind utility classes. */
