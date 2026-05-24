@@ -3,6 +3,33 @@
 @tailwind utilities;
 
 :root {
+  --bg-dark: #0F0F0F;
+  --surface: #111827;
+  --accent-start: #7C3AED;
+  --accent-end: #DB2777;
+}
+
+body {
+  background: var(--bg-dark);
+  color: #e6eef8;
+}
+
+.glass {
+  background: linear-gradient(135deg, rgba(124,58,237,0.06), rgba(219,39,119,0.04));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+.accent-gradient {
+  background-image: linear-gradient(90deg, var(--accent-start), var(--accent-end));
+}
+
+.card-shadow {
+  box-shadow: 0 8px 24px rgba(2,6,23,0.6);
+}
+
+:root {
   --bg: #0f1724;
 }
 
