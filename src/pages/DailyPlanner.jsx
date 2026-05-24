@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useCallback } from 'react'
 import formatRupiah from '../utils/formatRupiah'
 
 const STORAGE_KEY = 'uangku.dailyPlanner.v1'
@@ -8,7 +8,7 @@ function loadData() {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return null
     return JSON.parse(raw)
-  } catch (e) {
+  } catch {
     return null
   }
 }
@@ -16,7 +16,7 @@ function loadData() {
 function saveData(data) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
-  } catch (e) {
+  } catch {
     // ignore
   }
 }
@@ -36,7 +36,7 @@ export default function DailyPlanner(){
   }, [state])
 
   // small helpers
-  const today = new Date()
+  const today = useMemo(() => new Date(), [])
   const endOfMonth = new Date(today.getFullYear(), today.getMonth()+1, 0)
   const daysRemaining = Math.max(1, endOfMonth.getDate() - today.getDate() + 1)
 
@@ -45,22 +45,22 @@ export default function DailyPlanner(){
     return Number.isFinite(n) ? n : 0
   }
 
-  const withinThisMonth = (dateStr) => {
+  const withinThisMonth = useCallback((dateStr) => {
     const d = new Date(dateStr)
     return d.getFullYear() === today.getFullYear() && d.getMonth() === today.getMonth()
-  }
+  }, [today])
 
   const sumDebtsIOweThisMonth = useMemo(() => {
     return state.debtsIOwe.filter(d => withinThisMonth(d.date)).reduce((s, i) => s + parseNumber(i.amount), 0)
-  }, [state.debtsIOwe])
+  }, [state.debtsIOwe, withinThisMonth])
 
   const sumDebtsOwedToMeThisMonth = useMemo(() => {
     return state.debtsOwedToMe.filter(d => withinThisMonth(d.date)).reduce((s, i) => s + parseNumber(i.amount), 0)
-  }, [state.debtsOwedToMe])
+  }, [state.debtsOwedToMe, withinThisMonth])
 
   const sumPurchasesThisMonth = useMemo(() => {
     return state.purchases.filter(p => withinThisMonth(p.date)).reduce((s, p) => s + parseNumber(p.price), 0)
-  }, [state.purchases])
+  }, [state.purchases, withinThisMonth])
 
   const availableThisMonth = useMemo(() => {
     const inc = parseNumber(state.income)

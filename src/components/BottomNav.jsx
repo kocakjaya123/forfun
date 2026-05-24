@@ -1,4 +1,3 @@
-import React from 'react'
 import { Home, List, PlusCircle, BarChart2, User } from 'lucide-react'
 
 export default function BottomNav(){

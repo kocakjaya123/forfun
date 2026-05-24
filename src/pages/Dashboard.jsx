@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 import formatRupiah from '../utils/formatRupiah'
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts'
 import { Plus } from 'lucide-react'
@@ -12,7 +12,7 @@ function parseNumber(v){
 export default function Dashboard(){
   // load planner data for quick figures
   const planner = useMemo(() => {
-    try { return JSON.parse(localStorage.getItem('uangku.dailyPlanner.v1') || '{}') } catch(e){ return {} }
+    try { return JSON.parse(localStorage.getItem('uangku.dailyPlanner.v1') || '{}') } catch { return {} }
   }, [])
 
   const income = parseNumber(planner.income)
@@ -25,19 +25,24 @@ export default function Dashboard(){
 
   // compute monthly totals (by month index)
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
-  const monthly = months.map((m, idx) => ({ name: m, expense: 0 }))
+  const monthly = months.map((m) => ({ name: m, expense: 0 }))
+  // use a stable "now" for calculations during render
+  const now = new Date()
+
   purchases.forEach(p => {
-    const d = new Date(p.date || Date.now())
-    const idx = d.getMonth()
-    monthly[idx].expense += p.price || 0
+    const dateStr = p.date || now.toISOString()
+    const d = new Date(dateStr)
+    const mi = d.getMonth()
+    monthly[mi].expense += p.price || 0
   })
   debtsIOwe.forEach(d => {
-    const dd = new Date(d.date || Date.now())
+    const dateStr = d.date || now.toISOString()
+    const dd = new Date(dateStr)
     monthly[dd.getMonth()].expense += d.amount || 0
   })
 
-  const sumPurchasesThisMonth = purchases.filter(p => { const d = new Date(p.date||Date.now()); const now = new Date(); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear() }).reduce((s,p)=>s+p.price,0)
-  const sumDebtsIOweThisMonth = debtsIOwe.filter(d => { const dd = new Date(d.date||Date.now()); const now = new Date(); return dd.getMonth() === now.getMonth() && dd.getFullYear() === now.getFullYear() }).reduce((s,p)=>s+p.amount,0)
+  const sumPurchasesThisMonth = purchases.filter(p => { const d = new Date(p.date||now.toISOString()); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear() }).reduce((s,p)=>s+p.price,0)
+  const sumDebtsIOweThisMonth = debtsIOwe.filter(d => { const dd = new Date(d.date||now.toISOString()); return dd.getMonth() === now.getMonth() && dd.getFullYear() === now.getFullYear() }).reduce((s,p)=>s+p.amount,0)
   const sumDebtsOwedToMeThisMonth = debtsOwedToMe.reduce((s,p)=>s+p.amount,0)
 
   const availableThisMonth = income - fixed - savings - sumDebtsIOweThisMonth - sumPurchasesThisMonth + sumDebtsOwedToMeThisMonth

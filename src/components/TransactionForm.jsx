@@ -1,5 +1,3 @@
-import React from 'react'
-
 export default function TransactionForm(){
   return (
     <form className="bg-slate-800 p-4 rounded-lg">

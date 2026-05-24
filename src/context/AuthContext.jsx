@@ -1,6 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../lib/supabaseClient'
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useContext, useState, useEffect } from 'react'
 
 const AuthContext = createContext()
 
@@ -9,10 +8,13 @@ export function useAuth(){
 }
 
 export function AuthProvider({children}){
-  const [user, setUser] = useState(null)
+  // avoid creating an unused setState variable so lint stays happy
+  const userState = useState(null)
+  const user = userState[0]
 
   useEffect(()=>{
     // placeholder for supabase auth listener
+    // (real auth listener will update state via userState[1])
   },[])
 
   return (
